@@ -1178,7 +1178,6 @@ static CYTHON_INLINE __pyx_t_double_complex __pyx_t_double_complex_from_parts(do
 /*--- Type declarations ---*/
 struct __pyx_obj_12wikidata2vec_10dictionary_Item;
 struct __pyx_obj_12wikidata2vec_10dictionary_Word;
-struct __pyx_obj_12wikidata2vec_10dictionary_Entity;
 struct __pyx_obj_12wikidata2vec_10dictionary_Dictionary;
 struct __pyx_obj_12wikidata2vec_7dump_db_DumpDB;
 struct __pyx_obj_12wikidata2vec_7dump_db_Paragraph;
@@ -1225,45 +1224,34 @@ typedef npy_clongdouble __pyx_t_5numpy_clongdouble_t;
  * cdef inline object PyArray_MultiIterNew1(a):
  */
 typedef npy_cdouble __pyx_t_5numpy_complex_t;
-struct __pyx_opt_args_12wikidata2vec_10dictionary_10Dictionary_get_word;
 struct __pyx_opt_args_12wikidata2vec_10dictionary_10Dictionary_get_entity;
-struct __pyx_opt_args_12wikidata2vec_10dictionary_10Dictionary_get_entity_index;
+struct __pyx_opt_args_12wikidata2vec_10dictionary_10Dictionary_get_word;
 
-/* "dictionary.pxd":35
- *     cdef int32_t _entity_offset
+/* "dictionary.pxd":38
+ * #     cdef readonly _alias_counter
  * 
+ *     cpdef get_entity(self, unicode word=?, unicode qid=?, int32_t index=?, default=?)             # <<<<<<<<<<<<<<
+ *     cpdef int32_t get_entity_index(self, unicode)
+ *     cpdef get_entity_by_index(self, int32_t)
+ */
+struct __pyx_opt_args_12wikidata2vec_10dictionary_10Dictionary_get_entity {
+  int __pyx_n;
+  PyObject *word;
+  PyObject *qid;
+  int32_t index;
+  PyObject *__pyx_default;
+};
+
+/* "dictionary.pxd":45
+ * 
+ *     # remove
  *     cpdef get_word(self, unicode, default=?)             # <<<<<<<<<<<<<<
- *     cpdef get_entity(self, unicode, bint resolve_redirect=?, default=?)
- *     cpdef int32_t get_word_index(self, unicode)
+ *     cpdef Item get_item_by_index(self, int32_t)
+ *     cpdef Word get_word_by_index(self, int32_t)
  */
 struct __pyx_opt_args_12wikidata2vec_10dictionary_10Dictionary_get_word {
   int __pyx_n;
   PyObject *__pyx_default;
-};
-
-/* "dictionary.pxd":36
- * 
- *     cpdef get_word(self, unicode, default=?)
- *     cpdef get_entity(self, unicode, bint resolve_redirect=?, default=?)             # <<<<<<<<<<<<<<
- *     cpdef int32_t get_word_index(self, unicode)
- *     cpdef int32_t get_entity_index(self, unicode, bint resolve_redirect=?)
- */
-struct __pyx_opt_args_12wikidata2vec_10dictionary_10Dictionary_get_entity {
-  int __pyx_n;
-  int resolve_redirect;
-  PyObject *__pyx_default;
-};
-
-/* "dictionary.pxd":38
- *     cpdef get_entity(self, unicode, bint resolve_redirect=?, default=?)
- *     cpdef int32_t get_word_index(self, unicode)
- *     cpdef int32_t get_entity_index(self, unicode, bint resolve_redirect=?)             # <<<<<<<<<<<<<<
- *     cpdef Item get_item_by_index(self, int32_t)
- *     cpdef Word get_word_by_index(self, int32_t)
- */
-struct __pyx_opt_args_12wikidata2vec_10dictionary_10Dictionary_get_entity_index {
-  int __pyx_n;
-  int resolve_redirect;
 };
 
 /* "dictionary.pxd":8
@@ -1294,19 +1282,6 @@ struct __pyx_obj_12wikidata2vec_10dictionary_Word {
 };
 
 
-/* "dictionary.pxd":18
- * 
- * 
- * cdef class Entity(Item):             # <<<<<<<<<<<<<<
- *     cdef readonly unicode title
- * 
- */
-struct __pyx_obj_12wikidata2vec_10dictionary_Entity {
-  struct __pyx_obj_12wikidata2vec_10dictionary_Item __pyx_base;
-  PyObject *title;
-};
-
-
 /* "dictionary.pxd":22
  * 
  * 
@@ -1320,14 +1295,12 @@ struct __pyx_obj_12wikidata2vec_10dictionary_Dictionary {
   PyObject *uuid;
   PyObject *language;
   int lowercase;
-  int32_t min_paragraph_len;
   PyObject *build_params;
-  PyObject *_word_dict;
-  PyObject *_entity_dict;
-  PyObject *_redirect_dict;
-  __Pyx_memviewslice _word_stats;
-  __Pyx_memviewslice _entity_stats;
-  int32_t _entity_offset;
+  PyObject *_entity2idx;
+  PyObject *_qid2label;
+  PyObject *_label2qid;
+  PyObject *_label2alias;
+  PyObject *_alias2label;
 };
 
 
@@ -1348,7 +1321,7 @@ struct __pyx_obj_12wikidata2vec_7dump_db_DumpDB {
 };
 
 
-/* "dump_db.pxd":19
+/* "dump_db.pxd":24
  * 
  * 
  * cdef class Paragraph:             # <<<<<<<<<<<<<<
@@ -1363,7 +1336,7 @@ struct __pyx_obj_12wikidata2vec_7dump_db_Paragraph {
 };
 
 
-/* "dump_db.pxd":25
+/* "dump_db.pxd":30
  * 
  * 
  * cdef class WikiLink:             # <<<<<<<<<<<<<<
@@ -1379,7 +1352,7 @@ struct __pyx_obj_12wikidata2vec_7dump_db_WikiLink {
 };
 
 
-/* "dump_db.pxd":32
+/* "dump_db.pxd":37
  * 
  * 
  * cdef class Entity:             # <<<<<<<<<<<<<<
@@ -1392,12 +1365,12 @@ struct __pyx_obj_12wikidata2vec_7dump_db_Entity {
   PyObject *alias;
   PyObject *label;
   PyObject *types;
-  PyObject *descriptions;
+  PyObject *description;
 };
 
 
-/* "wikidata2vec/link_graph.pxd":9
- * from .dictionary cimport Dictionary, Entity
+/* "wikidata2vec/link_graph.pxd":10
+ * from .dump_db cimport Entity
  * 
  * cdef class LinkGraph:             # <<<<<<<<<<<<<<
  *     cdef readonly unicode uuid
@@ -1503,13 +1476,15 @@ struct __pyx_memoryviewslice_obj {
  */
 
 struct __pyx_vtabstruct_12wikidata2vec_10dictionary_Dictionary {
+  PyObject *(*get_entity)(struct __pyx_obj_12wikidata2vec_10dictionary_Dictionary *, int __pyx_skip_dispatch, struct __pyx_opt_args_12wikidata2vec_10dictionary_10Dictionary_get_entity *__pyx_optional_args);
+  int32_t (*get_entity_index)(struct __pyx_obj_12wikidata2vec_10dictionary_Dictionary *, PyObject *, int __pyx_skip_dispatch);
+  PyObject *(*get_entity_by_index)(struct __pyx_obj_12wikidata2vec_10dictionary_Dictionary *, int32_t, int __pyx_skip_dispatch);
+  PyObject *(*get_entity_by_word)(struct __pyx_obj_12wikidata2vec_10dictionary_Dictionary *, PyObject *, int __pyx_skip_dispatch);
+  PyObject *(*get_entity_by_qid)(struct __pyx_obj_12wikidata2vec_10dictionary_Dictionary *, PyObject *, int __pyx_skip_dispatch);
   PyObject *(*get_word)(struct __pyx_obj_12wikidata2vec_10dictionary_Dictionary *, PyObject *, int __pyx_skip_dispatch, struct __pyx_opt_args_12wikidata2vec_10dictionary_10Dictionary_get_word *__pyx_optional_args);
-  PyObject *(*get_entity)(struct __pyx_obj_12wikidata2vec_10dictionary_Dictionary *, PyObject *, int __pyx_skip_dispatch, struct __pyx_opt_args_12wikidata2vec_10dictionary_10Dictionary_get_entity *__pyx_optional_args);
-  int32_t (*get_word_index)(struct __pyx_obj_12wikidata2vec_10dictionary_Dictionary *, PyObject *, int __pyx_skip_dispatch);
-  int32_t (*get_entity_index)(struct __pyx_obj_12wikidata2vec_10dictionary_Dictionary *, PyObject *, int __pyx_skip_dispatch, struct __pyx_opt_args_12wikidata2vec_10dictionary_10Dictionary_get_entity_index *__pyx_optional_args);
   struct __pyx_obj_12wikidata2vec_10dictionary_Item *(*get_item_by_index)(struct __pyx_obj_12wikidata2vec_10dictionary_Dictionary *, int32_t, int __pyx_skip_dispatch);
   struct __pyx_obj_12wikidata2vec_10dictionary_Word *(*get_word_by_index)(struct __pyx_obj_12wikidata2vec_10dictionary_Dictionary *, int32_t, int __pyx_skip_dispatch);
-  struct __pyx_obj_12wikidata2vec_10dictionary_Entity *(*get_entity_by_index)(struct __pyx_obj_12wikidata2vec_10dictionary_Dictionary *, int32_t, int __pyx_skip_dispatch);
+  int32_t (*get_word_index)(struct __pyx_obj_12wikidata2vec_10dictionary_Dictionary *, PyObject *, int __pyx_skip_dispatch);
 };
 static struct __pyx_vtabstruct_12wikidata2vec_10dictionary_Dictionary *__pyx_vtabptr_12wikidata2vec_10dictionary_Dictionary;
 
@@ -1526,13 +1501,15 @@ struct __pyx_vtabstruct_12wikidata2vec_7dump_db_DumpDB {
   PyObject *(*resolve_redirect)(struct __pyx_obj_12wikidata2vec_7dump_db_DumpDB *, PyObject *, int __pyx_skip_dispatch);
   PyObject *(*is_redirect)(struct __pyx_obj_12wikidata2vec_7dump_db_DumpDB *, PyObject *, int __pyx_skip_dispatch);
   PyObject *(*is_disambiguation)(struct __pyx_obj_12wikidata2vec_7dump_db_DumpDB *, PyObject *, int __pyx_skip_dispatch);
+  struct __pyx_obj_12wikidata2vec_7dump_db_Entity *(*get_entity)(struct __pyx_obj_12wikidata2vec_7dump_db_DumpDB *, PyObject *, int __pyx_skip_dispatch);
+  struct __pyx_obj_12wikidata2vec_7dump_db_Entity *(*_deserialize_entity)(struct __pyx_obj_12wikidata2vec_7dump_db_DumpDB *, PyObject *);
   PyObject *(*get_paragraphs)(struct __pyx_obj_12wikidata2vec_7dump_db_DumpDB *, PyObject *, int __pyx_skip_dispatch);
   PyObject *(*_deserialize_paragraphs)(struct __pyx_obj_12wikidata2vec_7dump_db_DumpDB *, PyObject *);
 };
 static struct __pyx_vtabstruct_12wikidata2vec_7dump_db_DumpDB *__pyx_vtabptr_12wikidata2vec_7dump_db_DumpDB;
 
 
-/* "wikidata2vec/link_graph.pyx":29
+/* "wikidata2vec/link_graph.pyx":32
  * 
  * 
  * cdef class LinkGraph:             # <<<<<<<<<<<<<<
@@ -1541,7 +1518,7 @@ static struct __pyx_vtabstruct_12wikidata2vec_7dump_db_DumpDB *__pyx_vtabptr_12w
  */
 
 struct __pyx_vtabstruct_12wikidata2vec_10link_graph_LinkGraph {
-  PyObject *(*neighbors)(struct __pyx_obj_12wikidata2vec_10link_graph_LinkGraph *, struct __pyx_obj_12wikidata2vec_10dictionary_Entity *, int __pyx_skip_dispatch);
+  PyObject *(*neighbors)(struct __pyx_obj_12wikidata2vec_10link_graph_LinkGraph *, struct __pyx_obj_12wikidata2vec_7dump_db_Entity *, int __pyx_skip_dispatch);
   __Pyx_memviewslice (*neighbor_indices)(struct __pyx_obj_12wikidata2vec_10link_graph_LinkGraph *, int32_t);
 };
 static struct __pyx_vtabstruct_12wikidata2vec_10link_graph_LinkGraph *__pyx_vtabptr_12wikidata2vec_10link_graph_LinkGraph;
@@ -2389,7 +2366,7 @@ static int __Pyx_check_binary_version(void);
 /* InitStrings.proto */
 static int __Pyx_InitStrings(__Pyx_StringTabEntry *t);
 
-static PyObject *__pyx_f_12wikidata2vec_10link_graph_9LinkGraph_neighbors(struct __pyx_obj_12wikidata2vec_10link_graph_LinkGraph *__pyx_v_self, struct __pyx_obj_12wikidata2vec_10dictionary_Entity *__pyx_v_item, int __pyx_skip_dispatch); /* proto*/
+static PyObject *__pyx_f_12wikidata2vec_10link_graph_9LinkGraph_neighbors(struct __pyx_obj_12wikidata2vec_10link_graph_LinkGraph *__pyx_v_self, struct __pyx_obj_12wikidata2vec_7dump_db_Entity *__pyx_v_item, int __pyx_skip_dispatch); /* proto*/
 static __Pyx_memviewslice __pyx_f_12wikidata2vec_10link_graph_9LinkGraph_neighbor_indices(struct __pyx_obj_12wikidata2vec_10link_graph_LinkGraph *__pyx_v_self, int32_t __pyx_v_index); /* proto*/
 static PyObject *__pyx_array_get_memview(struct __pyx_array_obj *__pyx_v_self); /* proto*/
 static char *__pyx_memoryview_get_item_pointer(struct __pyx_memoryview_obj *__pyx_v_self, PyObject *__pyx_v_index); /* proto*/
@@ -2436,18 +2413,17 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *, cha
 /* Module declarations from 'wikidata2vec.dictionary' */
 static PyTypeObject *__pyx_ptype_12wikidata2vec_10dictionary_Item = 0;
 static PyTypeObject *__pyx_ptype_12wikidata2vec_10dictionary_Word = 0;
-static PyTypeObject *__pyx_ptype_12wikidata2vec_10dictionary_Entity = 0;
 static PyTypeObject *__pyx_ptype_12wikidata2vec_10dictionary_Dictionary = 0;
-
-/* Module declarations from 'cython.view' */
-
-/* Module declarations from 'cython' */
 
 /* Module declarations from 'wikidata2vec.dump_db' */
 static PyTypeObject *__pyx_ptype_12wikidata2vec_7dump_db_DumpDB = 0;
 static PyTypeObject *__pyx_ptype_12wikidata2vec_7dump_db_Paragraph = 0;
 static PyTypeObject *__pyx_ptype_12wikidata2vec_7dump_db_WikiLink = 0;
 static PyTypeObject *__pyx_ptype_12wikidata2vec_7dump_db_Entity = 0;
+
+/* Module declarations from 'cython.view' */
+
+/* Module declarations from 'cython' */
 
 /* Module declarations from 'wikidata2vec.link_graph' */
 static PyTypeObject *__pyx_ptype_12wikidata2vec_10link_graph_LinkGraph = 0;
@@ -2567,6 +2543,7 @@ static const char __pyx_k_dtype[] = "dtype";
 static const char __pyx_k_enter[] = "__enter__";
 static const char __pyx_k_error[] = "error";
 static const char __pyx_k_flags[] = "flags";
+static const char __pyx_k_index[] = "index";
 static const char __pyx_k_int32[] = "int32";
 static const char __pyx_k_numpy[] = "numpy";
 static const char __pyx_k_range[] = "range";
@@ -2807,6 +2784,7 @@ static PyObject *__pyx_n_u_i;
 static PyObject *__pyx_n_s_id;
 static PyObject *__pyx_n_s_imap_unordered;
 static PyObject *__pyx_n_s_import;
+static PyObject *__pyx_n_s_index;
 static PyObject *__pyx_n_s_indices;
 static PyObject *__pyx_n_u_indices;
 static PyObject *__pyx_n_s_indptr;
@@ -2917,7 +2895,7 @@ static PyObject *__pyx_n_s_wikidata2vec_link_graph;
 static PyObject *__pyx_kp_s_wikidata2vec_link_graph_pyx;
 static PyObject *__pyx_n_u_wikipedia2vec;
 static int __pyx_pf_12wikidata2vec_10link_graph_9LinkGraph___init__(struct __pyx_obj_12wikidata2vec_10link_graph_LinkGraph *__pyx_v_self, struct __pyx_obj_12wikidata2vec_10dictionary_Dictionary *__pyx_v_dictionary, PyArrayObject *__pyx_v_indices, PyArrayObject *__pyx_v_indptr, PyObject *__pyx_v_build_params, PyObject *__pyx_v_uuid); /* proto */
-static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_2neighbors(struct __pyx_obj_12wikidata2vec_10link_graph_LinkGraph *__pyx_v_self, struct __pyx_obj_12wikidata2vec_10dictionary_Entity *__pyx_v_item); /* proto */
+static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_2neighbors(struct __pyx_obj_12wikidata2vec_10link_graph_LinkGraph *__pyx_v_self, struct __pyx_obj_12wikidata2vec_7dump_db_Entity *__pyx_v_item); /* proto */
 static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_4serialize(struct __pyx_obj_12wikidata2vec_10link_graph_LinkGraph *__pyx_v_self, PyObject *__pyx_v_shared_array); /* proto */
 static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_6save(struct __pyx_obj_12wikidata2vec_10link_graph_LinkGraph *__pyx_v_self, PyObject *__pyx_v_out_file); /* proto */
 static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_8load(PyObject *__pyx_v_target, PyObject *__pyx_v_dictionary, int __pyx_v_mmap); /* proto */
@@ -3030,7 +3008,7 @@ static PyObject *__pyx_codeobj__39;
 static PyObject *__pyx_codeobj__46;
 /* Late includes */
 
-/* "wikidata2vec/link_graph.pyx":30
+/* "wikidata2vec/link_graph.pyx":33
  * 
  * cdef class LinkGraph:
  *     def __init__(self, Dictionary dictionary, np.ndarray indices, np.ndarray indptr,             # <<<<<<<<<<<<<<
@@ -3082,19 +3060,19 @@ static int __pyx_pw_12wikidata2vec_10link_graph_9LinkGraph_1__init__(PyObject *_
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_indices)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 0, 4, 5, 1); __PYX_ERR(0, 30, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 0, 4, 5, 1); __PYX_ERR(0, 33, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_indptr)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 0, 4, 5, 2); __PYX_ERR(0, 30, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 0, 4, 5, 2); __PYX_ERR(0, 33, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_build_params)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 0, 4, 5, 3); __PYX_ERR(0, 30, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 0, 4, 5, 3); __PYX_ERR(0, 33, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  4:
@@ -3104,7 +3082,7 @@ static int __pyx_pw_12wikidata2vec_10link_graph_9LinkGraph_1__init__(PyObject *_
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 30, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 33, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -3126,17 +3104,17 @@ static int __pyx_pw_12wikidata2vec_10link_graph_9LinkGraph_1__init__(PyObject *_
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 0, 4, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 30, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 0, 4, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 33, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("wikidata2vec.link_graph.LinkGraph.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_dictionary), __pyx_ptype_12wikidata2vec_10dictionary_Dictionary, 1, "dictionary", 0))) __PYX_ERR(0, 30, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_indices), __pyx_ptype_5numpy_ndarray, 1, "indices", 0))) __PYX_ERR(0, 30, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_indptr), __pyx_ptype_5numpy_ndarray, 1, "indptr", 0))) __PYX_ERR(0, 30, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_build_params), (&PyDict_Type), 1, "build_params", 1))) __PYX_ERR(0, 31, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_uuid), (&PyUnicode_Type), 1, "uuid", 1))) __PYX_ERR(0, 31, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_dictionary), __pyx_ptype_12wikidata2vec_10dictionary_Dictionary, 1, "dictionary", 0))) __PYX_ERR(0, 33, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_indices), __pyx_ptype_5numpy_ndarray, 1, "indices", 0))) __PYX_ERR(0, 33, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_indptr), __pyx_ptype_5numpy_ndarray, 1, "indptr", 0))) __PYX_ERR(0, 33, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_build_params), (&PyDict_Type), 1, "build_params", 1))) __PYX_ERR(0, 34, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_uuid), (&PyUnicode_Type), 1, "uuid", 1))) __PYX_ERR(0, 34, __pyx_L1_error)
   __pyx_r = __pyx_pf_12wikidata2vec_10link_graph_9LinkGraph___init__(((struct __pyx_obj_12wikidata2vec_10link_graph_LinkGraph *)__pyx_v_self), __pyx_v_dictionary, __pyx_v_indices, __pyx_v_indptr, __pyx_v_build_params, __pyx_v_uuid);
 
   /* function exit code */
@@ -3160,7 +3138,7 @@ static int __pyx_pf_12wikidata2vec_10link_graph_9LinkGraph___init__(struct __pyx
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "wikidata2vec/link_graph.pyx":32
+  /* "wikidata2vec/link_graph.pyx":35
  *     def __init__(self, Dictionary dictionary, np.ndarray indices, np.ndarray indptr,
  *                  dict build_params, unicode uuid=''):
  *         self.uuid = uuid             # <<<<<<<<<<<<<<
@@ -3173,7 +3151,7 @@ static int __pyx_pf_12wikidata2vec_10link_graph_9LinkGraph___init__(struct __pyx
   __Pyx_DECREF(__pyx_v_self->uuid);
   __pyx_v_self->uuid = __pyx_v_uuid;
 
-  /* "wikidata2vec/link_graph.pyx":33
+  /* "wikidata2vec/link_graph.pyx":36
  *                  dict build_params, unicode uuid=''):
  *         self.uuid = uuid
  *         self.build_params = build_params             # <<<<<<<<<<<<<<
@@ -3186,7 +3164,7 @@ static int __pyx_pf_12wikidata2vec_10link_graph_9LinkGraph___init__(struct __pyx
   __Pyx_DECREF(__pyx_v_self->build_params);
   __pyx_v_self->build_params = __pyx_v_build_params;
 
-  /* "wikidata2vec/link_graph.pyx":34
+  /* "wikidata2vec/link_graph.pyx":37
  *         self.uuid = uuid
  *         self.build_params = build_params
  *         self._dictionary = dictionary             # <<<<<<<<<<<<<<
@@ -3199,46 +3177,46 @@ static int __pyx_pf_12wikidata2vec_10link_graph_9LinkGraph___init__(struct __pyx
   __Pyx_DECREF(((PyObject *)__pyx_v_self->_dictionary));
   __pyx_v_self->_dictionary = __pyx_v_dictionary;
 
-  /* "wikidata2vec/link_graph.pyx":35
+  /* "wikidata2vec/link_graph.pyx":38
  *         self.build_params = build_params
  *         self._dictionary = dictionary
  *         self._indptr = indptr             # <<<<<<<<<<<<<<
  *         self._indices = indices
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_to_MemoryviewSlice_ds_nn_int32_t__const__(((PyObject *)__pyx_v_indptr), 0); if (unlikely(!__pyx_t_1.memview)) __PYX_ERR(0, 35, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_to_MemoryviewSlice_ds_nn_int32_t__const__(((PyObject *)__pyx_v_indptr), 0); if (unlikely(!__pyx_t_1.memview)) __PYX_ERR(0, 38, __pyx_L1_error)
   __PYX_XDEC_MEMVIEW(&__pyx_v_self->_indptr, 0);
   __pyx_v_self->_indptr = __pyx_t_1;
   __pyx_t_1.memview = NULL;
   __pyx_t_1.data = NULL;
 
-  /* "wikidata2vec/link_graph.pyx":36
+  /* "wikidata2vec/link_graph.pyx":39
  *         self._dictionary = dictionary
  *         self._indptr = indptr
  *         self._indices = indices             # <<<<<<<<<<<<<<
  * 
  *         self._offset = self._dictionary.entity_offset
  */
-  __pyx_t_2 = __Pyx_PyObject_to_MemoryviewSlice_ds_nn_int32_t__const__(((PyObject *)__pyx_v_indices), 0); if (unlikely(!__pyx_t_2.memview)) __PYX_ERR(0, 36, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_to_MemoryviewSlice_ds_nn_int32_t__const__(((PyObject *)__pyx_v_indices), 0); if (unlikely(!__pyx_t_2.memview)) __PYX_ERR(0, 39, __pyx_L1_error)
   __PYX_XDEC_MEMVIEW(&__pyx_v_self->_indices, 0);
   __pyx_v_self->_indices = __pyx_t_2;
   __pyx_t_2.memview = NULL;
   __pyx_t_2.data = NULL;
 
-  /* "wikidata2vec/link_graph.pyx":38
+  /* "wikidata2vec/link_graph.pyx":41
  *         self._indices = indices
  * 
  *         self._offset = self._dictionary.entity_offset             # <<<<<<<<<<<<<<
  * 
  *     cpdef list neighbors(self, Entity item):
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->_dictionary), __pyx_n_s_entity_offset); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 38, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->_dictionary), __pyx_n_s_entity_offset); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 41, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyInt_As_int32_t(__pyx_t_3); if (unlikely((__pyx_t_4 == ((int32_t)-1)) && PyErr_Occurred())) __PYX_ERR(0, 38, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_As_int32_t(__pyx_t_3); if (unlikely((__pyx_t_4 == ((int32_t)-1)) && PyErr_Occurred())) __PYX_ERR(0, 41, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_v_self->_offset = __pyx_t_4;
 
-  /* "wikidata2vec/link_graph.pyx":30
+  /* "wikidata2vec/link_graph.pyx":33
  * 
  * cdef class LinkGraph:
  *     def __init__(self, Dictionary dictionary, np.ndarray indices, np.ndarray indptr,             # <<<<<<<<<<<<<<
@@ -3260,7 +3238,7 @@ static int __pyx_pf_12wikidata2vec_10link_graph_9LinkGraph___init__(struct __pyx
   return __pyx_r;
 }
 
-/* "wikidata2vec/link_graph.pyx":40
+/* "wikidata2vec/link_graph.pyx":43
  *         self._offset = self._dictionary.entity_offset
  * 
  *     cpdef list neighbors(self, Entity item):             # <<<<<<<<<<<<<<
@@ -3269,7 +3247,7 @@ static int __pyx_pf_12wikidata2vec_10link_graph_9LinkGraph___init__(struct __pyx
  */
 
 static PyObject *__pyx_pw_12wikidata2vec_10link_graph_9LinkGraph_3neighbors(PyObject *__pyx_v_self, PyObject *__pyx_v_item); /*proto*/
-static PyObject *__pyx_f_12wikidata2vec_10link_graph_9LinkGraph_neighbors(struct __pyx_obj_12wikidata2vec_10link_graph_LinkGraph *__pyx_v_self, struct __pyx_obj_12wikidata2vec_10dictionary_Entity *__pyx_v_item, int __pyx_skip_dispatch) {
+static PyObject *__pyx_f_12wikidata2vec_10link_graph_9LinkGraph_neighbors(struct __pyx_obj_12wikidata2vec_10link_graph_LinkGraph *__pyx_v_self, struct __pyx_obj_12wikidata2vec_7dump_db_Entity *__pyx_v_item, int __pyx_skip_dispatch) {
   PyObject *__pyx_v_i = NULL;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
@@ -3277,10 +3255,10 @@ static PyObject *__pyx_f_12wikidata2vec_10link_graph_9LinkGraph_neighbors(struct
   PyObject *__pyx_t_2 = NULL;
   PyObject *__pyx_t_3 = NULL;
   PyObject *__pyx_t_4 = NULL;
-  __Pyx_memviewslice __pyx_t_5 = { 0, 0, { 0 }, { 0 }, { 0 } };
-  Py_ssize_t __pyx_t_6;
-  PyObject *(*__pyx_t_7)(PyObject *);
-  int32_t __pyx_t_8;
+  int32_t __pyx_t_5;
+  __Pyx_memviewslice __pyx_t_6 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  Py_ssize_t __pyx_t_7;
+  PyObject *(*__pyx_t_8)(PyObject *);
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -3294,7 +3272,7 @@ static PyObject *__pyx_f_12wikidata2vec_10link_graph_9LinkGraph_neighbors(struct
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_neighbors); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 40, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_neighbors); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 43, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_12wikidata2vec_10link_graph_9LinkGraph_3neighbors)) {
         __Pyx_XDECREF(__pyx_r);
@@ -3311,10 +3289,10 @@ static PyObject *__pyx_f_12wikidata2vec_10link_graph_9LinkGraph_neighbors(struct
         }
         __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, ((PyObject *)__pyx_v_item)) : __Pyx_PyObject_CallOneArg(__pyx_t_3, ((PyObject *)__pyx_v_item));
         __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 40, __pyx_L1_error)
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 43, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-        if (!(likely(PyList_CheckExact(__pyx_t_2))||((__pyx_t_2) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "list", Py_TYPE(__pyx_t_2)->tp_name), 0))) __PYX_ERR(0, 40, __pyx_L1_error)
+        if (!(likely(PyList_CheckExact(__pyx_t_2))||((__pyx_t_2) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "list", Py_TYPE(__pyx_t_2)->tp_name), 0))) __PYX_ERR(0, 43, __pyx_L1_error)
         __pyx_r = ((PyObject*)__pyx_t_2);
         __pyx_t_2 = 0;
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -3333,7 +3311,7 @@ static PyObject *__pyx_f_12wikidata2vec_10link_graph_9LinkGraph_neighbors(struct
     #endif
   }
 
-  /* "wikidata2vec/link_graph.pyx":41
+  /* "wikidata2vec/link_graph.pyx":44
  * 
  *     cpdef list neighbors(self, Entity item):
  *         return [self._dictionary.get_entity_by_index(i) for i in self.neighbor_indices(item.index)]             # <<<<<<<<<<<<<<
@@ -3341,49 +3319,53 @@ static PyObject *__pyx_f_12wikidata2vec_10link_graph_9LinkGraph_neighbors(struct
  *     @cython.boundscheck(False)
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 41, __pyx_L1_error)
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 44, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_5 = ((struct __pyx_vtabstruct_12wikidata2vec_10link_graph_LinkGraph *)__pyx_v_self->__pyx_vtab)->neighbor_indices(__pyx_v_self, __pyx_v_item->__pyx_base.index); if (unlikely(!__pyx_t_5.memview)) __PYX_ERR(0, 41, __pyx_L1_error)
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_t_5, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn_int32_t__const__, (int (*)(char *, PyObject *)) NULL, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 41, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_item), __pyx_n_s_index); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 44, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __PYX_XDEC_MEMVIEW(&__pyx_t_5, 1);
-  __pyx_t_5.memview = NULL;
-  __pyx_t_5.data = NULL;
+  __pyx_t_5 = __Pyx_PyInt_As_int32_t(__pyx_t_2); if (unlikely((__pyx_t_5 == ((int32_t)-1)) && PyErr_Occurred())) __PYX_ERR(0, 44, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_6 = ((struct __pyx_vtabstruct_12wikidata2vec_10link_graph_LinkGraph *)__pyx_v_self->__pyx_vtab)->neighbor_indices(__pyx_v_self, __pyx_t_5); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 44, __pyx_L1_error)
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_t_6, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn_int32_t__const__, (int (*)(char *, PyObject *)) NULL, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 44, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_6, 1);
+  __pyx_t_6.memview = NULL;
+  __pyx_t_6.data = NULL;
   if (likely(PyList_CheckExact(__pyx_t_2)) || PyTuple_CheckExact(__pyx_t_2)) {
-    __pyx_t_3 = __pyx_t_2; __Pyx_INCREF(__pyx_t_3); __pyx_t_6 = 0;
-    __pyx_t_7 = NULL;
+    __pyx_t_3 = __pyx_t_2; __Pyx_INCREF(__pyx_t_3); __pyx_t_7 = 0;
+    __pyx_t_8 = NULL;
   } else {
-    __pyx_t_6 = -1; __pyx_t_3 = PyObject_GetIter(__pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 41, __pyx_L1_error)
+    __pyx_t_7 = -1; __pyx_t_3 = PyObject_GetIter(__pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 44, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_7 = Py_TYPE(__pyx_t_3)->tp_iternext; if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 41, __pyx_L1_error)
+    __pyx_t_8 = Py_TYPE(__pyx_t_3)->tp_iternext; if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 44, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   for (;;) {
-    if (likely(!__pyx_t_7)) {
+    if (likely(!__pyx_t_8)) {
       if (likely(PyList_CheckExact(__pyx_t_3))) {
-        if (__pyx_t_6 >= PyList_GET_SIZE(__pyx_t_3)) break;
+        if (__pyx_t_7 >= PyList_GET_SIZE(__pyx_t_3)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_2 = PyList_GET_ITEM(__pyx_t_3, __pyx_t_6); __Pyx_INCREF(__pyx_t_2); __pyx_t_6++; if (unlikely(0 < 0)) __PYX_ERR(0, 41, __pyx_L1_error)
+        __pyx_t_2 = PyList_GET_ITEM(__pyx_t_3, __pyx_t_7); __Pyx_INCREF(__pyx_t_2); __pyx_t_7++; if (unlikely(0 < 0)) __PYX_ERR(0, 44, __pyx_L1_error)
         #else
-        __pyx_t_2 = PySequence_ITEM(__pyx_t_3, __pyx_t_6); __pyx_t_6++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 41, __pyx_L1_error)
+        __pyx_t_2 = PySequence_ITEM(__pyx_t_3, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 44, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         #endif
       } else {
-        if (__pyx_t_6 >= PyTuple_GET_SIZE(__pyx_t_3)) break;
+        if (__pyx_t_7 >= PyTuple_GET_SIZE(__pyx_t_3)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_2 = PyTuple_GET_ITEM(__pyx_t_3, __pyx_t_6); __Pyx_INCREF(__pyx_t_2); __pyx_t_6++; if (unlikely(0 < 0)) __PYX_ERR(0, 41, __pyx_L1_error)
+        __pyx_t_2 = PyTuple_GET_ITEM(__pyx_t_3, __pyx_t_7); __Pyx_INCREF(__pyx_t_2); __pyx_t_7++; if (unlikely(0 < 0)) __PYX_ERR(0, 44, __pyx_L1_error)
         #else
-        __pyx_t_2 = PySequence_ITEM(__pyx_t_3, __pyx_t_6); __pyx_t_6++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 41, __pyx_L1_error)
+        __pyx_t_2 = PySequence_ITEM(__pyx_t_3, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 44, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         #endif
       }
     } else {
-      __pyx_t_2 = __pyx_t_7(__pyx_t_3);
+      __pyx_t_2 = __pyx_t_8(__pyx_t_3);
       if (unlikely(!__pyx_t_2)) {
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 41, __pyx_L1_error)
+          else __PYX_ERR(0, 44, __pyx_L1_error)
         }
         break;
       }
@@ -3391,10 +3373,10 @@ static PyObject *__pyx_f_12wikidata2vec_10link_graph_9LinkGraph_neighbors(struct
     }
     __Pyx_XDECREF_SET(__pyx_v_i, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_8 = __Pyx_PyInt_As_int32_t(__pyx_v_i); if (unlikely((__pyx_t_8 == ((int32_t)-1)) && PyErr_Occurred())) __PYX_ERR(0, 41, __pyx_L1_error)
-    __pyx_t_2 = ((PyObject *)((struct __pyx_vtabstruct_12wikidata2vec_10dictionary_Dictionary *)__pyx_v_self->_dictionary->__pyx_vtab)->get_entity_by_index(__pyx_v_self->_dictionary, __pyx_t_8, 0)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 41, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyInt_As_int32_t(__pyx_v_i); if (unlikely((__pyx_t_5 == ((int32_t)-1)) && PyErr_Occurred())) __PYX_ERR(0, 44, __pyx_L1_error)
+    __pyx_t_2 = ((struct __pyx_vtabstruct_12wikidata2vec_10dictionary_Dictionary *)__pyx_v_self->_dictionary->__pyx_vtab)->get_entity_by_index(__pyx_v_self->_dictionary, __pyx_t_5, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 44, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    if (unlikely(__Pyx_ListComp_Append(__pyx_t_1, (PyObject*)__pyx_t_2))) __PYX_ERR(0, 41, __pyx_L1_error)
+    if (unlikely(__Pyx_ListComp_Append(__pyx_t_1, (PyObject*)__pyx_t_2))) __PYX_ERR(0, 44, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -3402,7 +3384,7 @@ static PyObject *__pyx_f_12wikidata2vec_10link_graph_9LinkGraph_neighbors(struct
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "wikidata2vec/link_graph.pyx":40
+  /* "wikidata2vec/link_graph.pyx":43
  *         self._offset = self._dictionary.entity_offset
  * 
  *     cpdef list neighbors(self, Entity item):             # <<<<<<<<<<<<<<
@@ -3416,7 +3398,7 @@ static PyObject *__pyx_f_12wikidata2vec_10link_graph_9LinkGraph_neighbors(struct
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __PYX_XDEC_MEMVIEW(&__pyx_t_5, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_6, 1);
   __Pyx_AddTraceback("wikidata2vec.link_graph.LinkGraph.neighbors", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
@@ -3435,8 +3417,8 @@ static PyObject *__pyx_pw_12wikidata2vec_10link_graph_9LinkGraph_3neighbors(PyOb
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("neighbors (wrapper)", 0);
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_item), __pyx_ptype_12wikidata2vec_10dictionary_Entity, 1, "item", 0))) __PYX_ERR(0, 40, __pyx_L1_error)
-  __pyx_r = __pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_2neighbors(((struct __pyx_obj_12wikidata2vec_10link_graph_LinkGraph *)__pyx_v_self), ((struct __pyx_obj_12wikidata2vec_10dictionary_Entity *)__pyx_v_item));
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_item), __pyx_ptype_12wikidata2vec_7dump_db_Entity, 1, "item", 0))) __PYX_ERR(0, 43, __pyx_L1_error)
+  __pyx_r = __pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_2neighbors(((struct __pyx_obj_12wikidata2vec_10link_graph_LinkGraph *)__pyx_v_self), ((struct __pyx_obj_12wikidata2vec_7dump_db_Entity *)__pyx_v_item));
 
   /* function exit code */
   goto __pyx_L0;
@@ -3447,7 +3429,7 @@ static PyObject *__pyx_pw_12wikidata2vec_10link_graph_9LinkGraph_3neighbors(PyOb
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_2neighbors(struct __pyx_obj_12wikidata2vec_10link_graph_LinkGraph *__pyx_v_self, struct __pyx_obj_12wikidata2vec_10dictionary_Entity *__pyx_v_item) {
+static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_2neighbors(struct __pyx_obj_12wikidata2vec_10link_graph_LinkGraph *__pyx_v_self, struct __pyx_obj_12wikidata2vec_7dump_db_Entity *__pyx_v_item) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -3456,7 +3438,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_2neighbors(stru
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("neighbors", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_12wikidata2vec_10link_graph_9LinkGraph_neighbors(__pyx_v_self, __pyx_v_item, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 40, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_12wikidata2vec_10link_graph_9LinkGraph_neighbors(__pyx_v_self, __pyx_v_item, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 43, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -3473,7 +3455,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_2neighbors(stru
   return __pyx_r;
 }
 
-/* "wikidata2vec/link_graph.pyx":46
+/* "wikidata2vec/link_graph.pyx":49
  *     @cython.initializedcheck(False)
  *     @cython.wraparound(False)
  *     cdef const int32_t [:] neighbor_indices(self, int32_t index) nogil:             # <<<<<<<<<<<<<<
@@ -3491,7 +3473,7 @@ static __Pyx_memviewslice __pyx_f_12wikidata2vec_10link_graph_9LinkGraph_neighbo
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
 
-  /* "wikidata2vec/link_graph.pyx":47
+  /* "wikidata2vec/link_graph.pyx":50
  *     @cython.wraparound(False)
  *     cdef const int32_t [:] neighbor_indices(self, int32_t index) nogil:
  *         index -= self._offset             # <<<<<<<<<<<<<<
@@ -3500,7 +3482,7 @@ static __Pyx_memviewslice __pyx_f_12wikidata2vec_10link_graph_9LinkGraph_neighbo
  */
   __pyx_v_index = (__pyx_v_index - __pyx_v_self->_offset);
 
-  /* "wikidata2vec/link_graph.pyx":48
+  /* "wikidata2vec/link_graph.pyx":51
  *     cdef const int32_t [:] neighbor_indices(self, int32_t index) nogil:
  *         index -= self._offset
  *         return self._indices[self._indptr[index]:self._indptr[index + 1]]             # <<<<<<<<<<<<<<
@@ -3527,7 +3509,7 @@ static __Pyx_memviewslice __pyx_f_12wikidata2vec_10link_graph_9LinkGraph_neighbo
     0,
     1) < 0))
 {
-    __PYX_ERR(0, 48, __pyx_L1_error)
+    __PYX_ERR(0, 51, __pyx_L1_error)
 }
 
 __pyx_r = __pyx_t_3;
@@ -3535,7 +3517,7 @@ __pyx_r = __pyx_t_3;
   __pyx_t_3.data = NULL;
   goto __pyx_L0;
 
-  /* "wikidata2vec/link_graph.pyx":46
+  /* "wikidata2vec/link_graph.pyx":49
  *     @cython.initializedcheck(False)
  *     @cython.wraparound(False)
  *     cdef const int32_t [:] neighbor_indices(self, int32_t index) nogil:             # <<<<<<<<<<<<<<
@@ -3566,7 +3548,7 @@ __pyx_r = __pyx_t_3;
   return __pyx_r;
 }
 
-/* "wikidata2vec/link_graph.pyx":50
+/* "wikidata2vec/link_graph.pyx":53
  *         return self._indices[self._indptr[index]:self._indptr[index + 1]]
  * 
  *     def serialize(self, shared_array=False):             # <<<<<<<<<<<<<<
@@ -3606,7 +3588,7 @@ static PyObject *__pyx_pw_12wikidata2vec_10link_graph_9LinkGraph_5serialize(PyOb
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "serialize") < 0)) __PYX_ERR(0, 50, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "serialize") < 0)) __PYX_ERR(0, 53, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -3620,7 +3602,7 @@ static PyObject *__pyx_pw_12wikidata2vec_10link_graph_9LinkGraph_5serialize(PyOb
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("serialize", 0, 0, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 50, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("serialize", 0, 0, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 53, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("wikidata2vec.link_graph.LinkGraph.serialize", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -3656,31 +3638,31 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_4serialize(stru
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("serialize", 0);
 
-  /* "wikidata2vec/link_graph.pyx":53
+  /* "wikidata2vec/link_graph.pyx":56
  *         cdef int32_t [:] indices_c, indptr_c
  * 
  *         if shared_array:             # <<<<<<<<<<<<<<
  *             indices = multiprocessing.RawArray('i', len(self._indices))
  *             indptr = multiprocessing.RawArray('i', len(self._indptr))
  */
-  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_shared_array); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 53, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_shared_array); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 56, __pyx_L1_error)
   if (__pyx_t_1) {
 
-    /* "wikidata2vec/link_graph.pyx":54
+    /* "wikidata2vec/link_graph.pyx":57
  * 
  *         if shared_array:
  *             indices = multiprocessing.RawArray('i', len(self._indices))             # <<<<<<<<<<<<<<
  *             indptr = multiprocessing.RawArray('i', len(self._indptr))
  * 
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_multiprocessing); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 54, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_multiprocessing); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 57, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_RawArray); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 54, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_RawArray); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 57, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_v_self->_indices.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 54, __pyx_L1_error)}
+    if (unlikely(!__pyx_v_self->_indices.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 57, __pyx_L1_error)}
     __pyx_t_5 = __Pyx_MemoryView_Len(__pyx_v_self->_indices); 
-    __pyx_t_3 = __Pyx_PyInt_FromSize_t(__pyx_t_5); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 54, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyInt_FromSize_t(__pyx_t_5); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 57, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_6 = NULL;
     __pyx_t_7 = 0;
@@ -3697,7 +3679,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_4serialize(stru
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_4)) {
       PyObject *__pyx_temp[3] = {__pyx_t_6, __pyx_n_u_i, __pyx_t_3};
-      __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 54, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 57, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -3706,14 +3688,14 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_4serialize(stru
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_4)) {
       PyObject *__pyx_temp[3] = {__pyx_t_6, __pyx_n_u_i, __pyx_t_3};
-      __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 54, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 57, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     } else
     #endif
     {
-      __pyx_t_8 = PyTuple_New(2+__pyx_t_7); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 54, __pyx_L1_error)
+      __pyx_t_8 = PyTuple_New(2+__pyx_t_7); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 57, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_8);
       if (__pyx_t_6) {
         __Pyx_GIVEREF(__pyx_t_6); PyTuple_SET_ITEM(__pyx_t_8, 0, __pyx_t_6); __pyx_t_6 = NULL;
@@ -3724,7 +3706,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_4serialize(stru
       __Pyx_GIVEREF(__pyx_t_3);
       PyTuple_SET_ITEM(__pyx_t_8, 1+__pyx_t_7, __pyx_t_3);
       __pyx_t_3 = 0;
-      __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_8, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 54, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_8, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 57, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
     }
@@ -3732,21 +3714,21 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_4serialize(stru
     __pyx_v_indices = __pyx_t_2;
     __pyx_t_2 = 0;
 
-    /* "wikidata2vec/link_graph.pyx":55
+    /* "wikidata2vec/link_graph.pyx":58
  *         if shared_array:
  *             indices = multiprocessing.RawArray('i', len(self._indices))
  *             indptr = multiprocessing.RawArray('i', len(self._indptr))             # <<<<<<<<<<<<<<
  * 
  *             indices_c = indices
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_multiprocessing); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 55, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_multiprocessing); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 58, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_RawArray); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 55, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_RawArray); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 58, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_v_self->_indptr.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 55, __pyx_L1_error)}
+    if (unlikely(!__pyx_v_self->_indptr.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 58, __pyx_L1_error)}
     __pyx_t_5 = __Pyx_MemoryView_Len(__pyx_v_self->_indptr); 
-    __pyx_t_4 = __Pyx_PyInt_FromSize_t(__pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 55, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyInt_FromSize_t(__pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 58, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __pyx_t_3 = NULL;
     __pyx_t_7 = 0;
@@ -3763,7 +3745,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_4serialize(stru
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_8)) {
       PyObject *__pyx_temp[3] = {__pyx_t_3, __pyx_n_u_i, __pyx_t_4};
-      __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_8, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 55, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_8, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 58, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -3772,14 +3754,14 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_4serialize(stru
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_8)) {
       PyObject *__pyx_temp[3] = {__pyx_t_3, __pyx_n_u_i, __pyx_t_4};
-      __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_8, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 55, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_8, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 58, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     } else
     #endif
     {
-      __pyx_t_6 = PyTuple_New(2+__pyx_t_7); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 55, __pyx_L1_error)
+      __pyx_t_6 = PyTuple_New(2+__pyx_t_7); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 58, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
       if (__pyx_t_3) {
         __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_3); __pyx_t_3 = NULL;
@@ -3790,7 +3772,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_4serialize(stru
       __Pyx_GIVEREF(__pyx_t_4);
       PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_7, __pyx_t_4);
       __pyx_t_4 = 0;
-      __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_8, __pyx_t_6, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 55, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_8, __pyx_t_6, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 58, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     }
@@ -3798,61 +3780,61 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_4serialize(stru
     __pyx_v_indptr = __pyx_t_2;
     __pyx_t_2 = 0;
 
-    /* "wikidata2vec/link_graph.pyx":57
+    /* "wikidata2vec/link_graph.pyx":60
  *             indptr = multiprocessing.RawArray('i', len(self._indptr))
  * 
  *             indices_c = indices             # <<<<<<<<<<<<<<
  *             indptr_c = indptr
  *             indices_c[:] = self._indices
  */
-    __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_nn_int32_t(__pyx_v_indices, PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 57, __pyx_L1_error)
+    __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_nn_int32_t(__pyx_v_indices, PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 60, __pyx_L1_error)
     __pyx_v_indices_c = __pyx_t_9;
     __pyx_t_9.memview = NULL;
     __pyx_t_9.data = NULL;
 
-    /* "wikidata2vec/link_graph.pyx":58
+    /* "wikidata2vec/link_graph.pyx":61
  * 
  *             indices_c = indices
  *             indptr_c = indptr             # <<<<<<<<<<<<<<
  *             indices_c[:] = self._indices
  *             indptr_c[:] = self._indptr
  */
-    __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_nn_int32_t(__pyx_v_indptr, PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 58, __pyx_L1_error)
+    __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_nn_int32_t(__pyx_v_indptr, PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 61, __pyx_L1_error)
     __pyx_v_indptr_c = __pyx_t_9;
     __pyx_t_9.memview = NULL;
     __pyx_t_9.data = NULL;
 
-    /* "wikidata2vec/link_graph.pyx":59
+    /* "wikidata2vec/link_graph.pyx":62
  *             indices_c = indices
  *             indptr_c = indptr
  *             indices_c[:] = self._indices             # <<<<<<<<<<<<<<
  *             indptr_c[:] = self._indptr
  *         else:
  */
-    if (unlikely(!__pyx_v_self->_indices.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 59, __pyx_L1_error)}
+    if (unlikely(!__pyx_v_self->_indices.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 62, __pyx_L1_error)}
     __pyx_t_10 = __pyx_v_self->_indices;
     __PYX_INC_MEMVIEW(&__pyx_t_10, 1);
-    if (unlikely(__pyx_memoryview_copy_contents(__pyx_t_10, __pyx_v_indices_c, 1, 1, 0) < 0)) __PYX_ERR(0, 59, __pyx_L1_error)
+    if (unlikely(__pyx_memoryview_copy_contents(__pyx_t_10, __pyx_v_indices_c, 1, 1, 0) < 0)) __PYX_ERR(0, 62, __pyx_L1_error)
     __PYX_XDEC_MEMVIEW(&__pyx_t_10, 1);
     __pyx_t_10.memview = NULL;
     __pyx_t_10.data = NULL;
 
-    /* "wikidata2vec/link_graph.pyx":60
+    /* "wikidata2vec/link_graph.pyx":63
  *             indptr_c = indptr
  *             indices_c[:] = self._indices
  *             indptr_c[:] = self._indptr             # <<<<<<<<<<<<<<
  *         else:
  *             indices = np.asarray(self._indices, dtype=np.int32)
  */
-    if (unlikely(!__pyx_v_self->_indptr.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 60, __pyx_L1_error)}
+    if (unlikely(!__pyx_v_self->_indptr.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 63, __pyx_L1_error)}
     __pyx_t_11 = __pyx_v_self->_indptr;
     __PYX_INC_MEMVIEW(&__pyx_t_11, 1);
-    if (unlikely(__pyx_memoryview_copy_contents(__pyx_t_11, __pyx_v_indptr_c, 1, 1, 0) < 0)) __PYX_ERR(0, 60, __pyx_L1_error)
+    if (unlikely(__pyx_memoryview_copy_contents(__pyx_t_11, __pyx_v_indptr_c, 1, 1, 0) < 0)) __PYX_ERR(0, 63, __pyx_L1_error)
     __PYX_XDEC_MEMVIEW(&__pyx_t_11, 1);
     __pyx_t_11.memview = NULL;
     __pyx_t_11.data = NULL;
 
-    /* "wikidata2vec/link_graph.pyx":53
+    /* "wikidata2vec/link_graph.pyx":56
  *         cdef int32_t [:] indices_c, indptr_c
  * 
  *         if shared_array:             # <<<<<<<<<<<<<<
@@ -3862,7 +3844,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_4serialize(stru
     goto __pyx_L3;
   }
 
-  /* "wikidata2vec/link_graph.pyx":62
+  /* "wikidata2vec/link_graph.pyx":65
  *             indptr_c[:] = self._indptr
  *         else:
  *             indices = np.asarray(self._indices, dtype=np.int32)             # <<<<<<<<<<<<<<
@@ -3870,29 +3852,29 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_4serialize(stru
  * 
  */
   /*else*/ {
-    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 62, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 65, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 62, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 65, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    if (unlikely(!__pyx_v_self->_indices.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 62, __pyx_L1_error)}
-    __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->_indices, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn_int32_t__const__, (int (*)(char *, PyObject *)) NULL, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 62, __pyx_L1_error)
+    if (unlikely(!__pyx_v_self->_indices.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 65, __pyx_L1_error)}
+    __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->_indices, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn_int32_t__const__, (int (*)(char *, PyObject *)) NULL, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 65, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_6 = PyTuple_New(1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 62, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 65, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 62, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 65, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 62, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 65, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_int32); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 62, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_int32); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 65, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_3) < 0) __PYX_ERR(0, 62, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_3) < 0) __PYX_ERR(0, 65, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_8, __pyx_t_6, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 62, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_8, __pyx_t_6, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 65, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
@@ -3900,36 +3882,36 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_4serialize(stru
     __pyx_v_indices = __pyx_t_3;
     __pyx_t_3 = 0;
 
-    /* "wikidata2vec/link_graph.pyx":63
+    /* "wikidata2vec/link_graph.pyx":66
  *         else:
  *             indices = np.asarray(self._indices, dtype=np.int32)
  *             indptr = np.asarray(self._indptr, dtype=np.int32)             # <<<<<<<<<<<<<<
  * 
  *         return dict(indices=indices,
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 63, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 66, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_asarray); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 63, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_asarray); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 66, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_v_self->_indptr.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 63, __pyx_L1_error)}
-    __pyx_t_3 = __pyx_memoryview_fromslice(__pyx_v_self->_indptr, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn_int32_t__const__, (int (*)(char *, PyObject *)) NULL, 0);; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 63, __pyx_L1_error)
+    if (unlikely(!__pyx_v_self->_indptr.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 66, __pyx_L1_error)}
+    __pyx_t_3 = __pyx_memoryview_fromslice(__pyx_v_self->_indptr, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn_int32_t__const__, (int (*)(char *, PyObject *)) NULL, 0);; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 66, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_6 = PyTuple_New(1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 63, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 66, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_GIVEREF(__pyx_t_3);
     PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_3);
     __pyx_t_3 = 0;
-    __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 63, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 66, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_n_s_np); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 63, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_n_s_np); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 66, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_int32); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 63, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_int32); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 66, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-    if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, __pyx_t_4) < 0) __PYX_ERR(0, 63, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, __pyx_t_4) < 0) __PYX_ERR(0, 66, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_6, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 63, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_6, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 66, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
@@ -3939,7 +3921,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_4serialize(stru
   }
   __pyx_L3:;
 
-  /* "wikidata2vec/link_graph.pyx":65
+  /* "wikidata2vec/link_graph.pyx":68
  *             indptr = np.asarray(self._indptr, dtype=np.int32)
  * 
  *         return dict(indices=indices,             # <<<<<<<<<<<<<<
@@ -3947,41 +3929,41 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_4serialize(stru
  *                     build_params=self.build_params,
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_4 = __Pyx_PyDict_NewPresized(4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 65, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyDict_NewPresized(4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 68, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_indices, __pyx_v_indices) < 0) __PYX_ERR(0, 65, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_indices, __pyx_v_indices) < 0) __PYX_ERR(0, 68, __pyx_L1_error)
 
-  /* "wikidata2vec/link_graph.pyx":66
+  /* "wikidata2vec/link_graph.pyx":69
  * 
  *         return dict(indices=indices,
  *                     indptr=indptr,             # <<<<<<<<<<<<<<
  *                     build_params=self.build_params,
  *                     uuid=self.uuid)
  */
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_indptr, __pyx_v_indptr) < 0) __PYX_ERR(0, 65, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_indptr, __pyx_v_indptr) < 0) __PYX_ERR(0, 68, __pyx_L1_error)
 
-  /* "wikidata2vec/link_graph.pyx":67
+  /* "wikidata2vec/link_graph.pyx":70
  *         return dict(indices=indices,
  *                     indptr=indptr,
  *                     build_params=self.build_params,             # <<<<<<<<<<<<<<
  *                     uuid=self.uuid)
  * 
  */
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_build_params, __pyx_v_self->build_params) < 0) __PYX_ERR(0, 65, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_build_params, __pyx_v_self->build_params) < 0) __PYX_ERR(0, 68, __pyx_L1_error)
 
-  /* "wikidata2vec/link_graph.pyx":68
+  /* "wikidata2vec/link_graph.pyx":71
  *                     indptr=indptr,
  *                     build_params=self.build_params,
  *                     uuid=self.uuid)             # <<<<<<<<<<<<<<
  * 
  *     def save(self, out_file):
  */
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_uuid, __pyx_v_self->uuid) < 0) __PYX_ERR(0, 65, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_uuid, __pyx_v_self->uuid) < 0) __PYX_ERR(0, 68, __pyx_L1_error)
   __pyx_r = __pyx_t_4;
   __pyx_t_4 = 0;
   goto __pyx_L0;
 
-  /* "wikidata2vec/link_graph.pyx":50
+  /* "wikidata2vec/link_graph.pyx":53
  *         return self._indices[self._indptr[index]:self._indptr[index + 1]]
  * 
  *     def serialize(self, shared_array=False):             # <<<<<<<<<<<<<<
@@ -4011,7 +3993,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_4serialize(stru
   return __pyx_r;
 }
 
-/* "wikidata2vec/link_graph.pyx":70
+/* "wikidata2vec/link_graph.pyx":73
  *                     uuid=self.uuid)
  * 
  *     def save(self, out_file):             # <<<<<<<<<<<<<<
@@ -4046,19 +4028,19 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_6save(struct __
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("save", 0);
 
-  /* "wikidata2vec/link_graph.pyx":71
+  /* "wikidata2vec/link_graph.pyx":74
  * 
  *     def save(self, out_file):
  *         joblib.dump(self.serialize(), out_file)             # <<<<<<<<<<<<<<
  * 
  *     @staticmethod
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_joblib); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 71, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_joblib); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 74, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_dump); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 71, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_dump); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 74, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_serialize); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 71, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_serialize); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 74, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_4))) {
@@ -4072,7 +4054,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_6save(struct __
   }
   __pyx_t_2 = (__pyx_t_5) ? __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_5) : __Pyx_PyObject_CallNoArg(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 71, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 74, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_t_4 = NULL;
@@ -4090,7 +4072,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_6save(struct __
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_t_2, __pyx_v_out_file};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 71, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 74, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -4099,14 +4081,14 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_6save(struct __
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_t_2, __pyx_v_out_file};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 71, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 74, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_5 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 71, __pyx_L1_error)
+    __pyx_t_5 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 74, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -4117,14 +4099,14 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_6save(struct __
     __Pyx_GIVEREF(__pyx_v_out_file);
     PyTuple_SET_ITEM(__pyx_t_5, 1+__pyx_t_6, __pyx_v_out_file);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 71, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 74, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "wikidata2vec/link_graph.pyx":70
+  /* "wikidata2vec/link_graph.pyx":73
  *                     uuid=self.uuid)
  * 
  *     def save(self, out_file):             # <<<<<<<<<<<<<<
@@ -4149,7 +4131,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_6save(struct __
   return __pyx_r;
 }
 
-/* "wikidata2vec/link_graph.pyx":74
+/* "wikidata2vec/link_graph.pyx":77
  * 
  *     @staticmethod
  *     def load(target, dictionary, bint mmap=True):             # <<<<<<<<<<<<<<
@@ -4195,7 +4177,7 @@ static PyObject *__pyx_pw_12wikidata2vec_10link_graph_9LinkGraph_9load(CYTHON_UN
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_dictionary)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("load", 0, 2, 3, 1); __PYX_ERR(0, 74, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("load", 0, 2, 3, 1); __PYX_ERR(0, 77, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
@@ -4205,7 +4187,7 @@ static PyObject *__pyx_pw_12wikidata2vec_10link_graph_9LinkGraph_9load(CYTHON_UN
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "load") < 0)) __PYX_ERR(0, 74, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "load") < 0)) __PYX_ERR(0, 77, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -4220,14 +4202,14 @@ static PyObject *__pyx_pw_12wikidata2vec_10link_graph_9LinkGraph_9load(CYTHON_UN
     __pyx_v_target = values[0];
     __pyx_v_dictionary = values[1];
     if (values[2]) {
-      __pyx_v_mmap = __Pyx_PyObject_IsTrue(values[2]); if (unlikely((__pyx_v_mmap == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 74, __pyx_L3_error)
+      __pyx_v_mmap = __Pyx_PyObject_IsTrue(values[2]); if (unlikely((__pyx_v_mmap == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 77, __pyx_L3_error)
     } else {
       __pyx_v_mmap = ((int)1);
     }
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("load", 0, 2, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 74, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("load", 0, 2, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 77, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("wikidata2vec.link_graph.LinkGraph.load", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -4258,7 +4240,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_8load(PyObject 
   __Pyx_RefNannySetupContext("load", 0);
   __Pyx_INCREF(__pyx_v_target);
 
-  /* "wikidata2vec/link_graph.pyx":75
+  /* "wikidata2vec/link_graph.pyx":78
  *     @staticmethod
  *     def load(target, dictionary, bint mmap=True):
  *         if not isinstance(target, dict):             # <<<<<<<<<<<<<<
@@ -4269,7 +4251,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_8load(PyObject 
   __pyx_t_2 = ((!(__pyx_t_1 != 0)) != 0);
   if (__pyx_t_2) {
 
-    /* "wikidata2vec/link_graph.pyx":76
+    /* "wikidata2vec/link_graph.pyx":79
  *     def load(target, dictionary, bint mmap=True):
  *         if not isinstance(target, dict):
  *             if mmap:             # <<<<<<<<<<<<<<
@@ -4279,27 +4261,27 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_8load(PyObject 
     __pyx_t_2 = (__pyx_v_mmap != 0);
     if (__pyx_t_2) {
 
-      /* "wikidata2vec/link_graph.pyx":77
+      /* "wikidata2vec/link_graph.pyx":80
  *         if not isinstance(target, dict):
  *             if mmap:
  *                 target = joblib.load(target, mmap_mode='r')             # <<<<<<<<<<<<<<
  *             else:
  *                 target = joblib.load(target)
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_joblib); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 77, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_joblib); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 80, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
-      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_load); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 77, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_load); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 80, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 77, __pyx_L1_error)
+      __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 80, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_INCREF(__pyx_v_target);
       __Pyx_GIVEREF(__pyx_v_target);
       PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_v_target);
-      __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 77, __pyx_L1_error)
+      __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 80, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
-      if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_mmap_mode, __pyx_n_u_r) < 0) __PYX_ERR(0, 77, __pyx_L1_error)
-      __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_3, __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 77, __pyx_L1_error)
+      if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_mmap_mode, __pyx_n_u_r) < 0) __PYX_ERR(0, 80, __pyx_L1_error)
+      __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_3, __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 80, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -4307,7 +4289,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_8load(PyObject 
       __Pyx_DECREF_SET(__pyx_v_target, __pyx_t_6);
       __pyx_t_6 = 0;
 
-      /* "wikidata2vec/link_graph.pyx":76
+      /* "wikidata2vec/link_graph.pyx":79
  *     def load(target, dictionary, bint mmap=True):
  *         if not isinstance(target, dict):
  *             if mmap:             # <<<<<<<<<<<<<<
@@ -4317,7 +4299,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_8load(PyObject 
       goto __pyx_L4;
     }
 
-    /* "wikidata2vec/link_graph.pyx":79
+    /* "wikidata2vec/link_graph.pyx":82
  *                 target = joblib.load(target, mmap_mode='r')
  *             else:
  *                 target = joblib.load(target)             # <<<<<<<<<<<<<<
@@ -4325,9 +4307,9 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_8load(PyObject 
  *         if target['build_params']['dictionary'] != dictionary.uuid:
  */
     /*else*/ {
-      __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_joblib); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 79, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_joblib); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 82, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_load); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 79, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_load); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 82, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       __pyx_t_5 = NULL;
@@ -4342,7 +4324,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_8load(PyObject 
       }
       __pyx_t_6 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_5, __pyx_v_target) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_v_target);
       __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-      if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 79, __pyx_L1_error)
+      if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 82, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_DECREF_SET(__pyx_v_target, __pyx_t_6);
@@ -4350,7 +4332,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_8load(PyObject 
     }
     __pyx_L4:;
 
-    /* "wikidata2vec/link_graph.pyx":75
+    /* "wikidata2vec/link_graph.pyx":78
  *     @staticmethod
  *     def load(target, dictionary, bint mmap=True):
  *         if not isinstance(target, dict):             # <<<<<<<<<<<<<<
@@ -4359,41 +4341,41 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_8load(PyObject 
  */
   }
 
-  /* "wikidata2vec/link_graph.pyx":81
+  /* "wikidata2vec/link_graph.pyx":84
  *                 target = joblib.load(target)
  * 
  *         if target['build_params']['dictionary'] != dictionary.uuid:             # <<<<<<<<<<<<<<
  *             raise RuntimeError('The specified dictionary is different from the one used to build this link graph')
  * 
  */
-  __pyx_t_6 = __Pyx_PyObject_Dict_GetItem(__pyx_v_target, __pyx_n_u_build_params); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 81, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_Dict_GetItem(__pyx_v_target, __pyx_n_u_build_params); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 84, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_t_6, __pyx_n_u_dictionary); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 81, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_t_6, __pyx_n_u_dictionary); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 84, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_dictionary, __pyx_n_s_uuid); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 81, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_dictionary, __pyx_n_s_uuid); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 84, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_5 = PyObject_RichCompare(__pyx_t_3, __pyx_t_6, Py_NE); __Pyx_XGOTREF(__pyx_t_5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 81, __pyx_L1_error)
+  __pyx_t_5 = PyObject_RichCompare(__pyx_t_3, __pyx_t_6, Py_NE); __Pyx_XGOTREF(__pyx_t_5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 84, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 81, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 84, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   if (unlikely(__pyx_t_2)) {
 
-    /* "wikidata2vec/link_graph.pyx":82
+    /* "wikidata2vec/link_graph.pyx":85
  * 
  *         if target['build_params']['dictionary'] != dictionary.uuid:
  *             raise RuntimeError('The specified dictionary is different from the one used to build this link graph')             # <<<<<<<<<<<<<<
  * 
  *         indices = target.pop('indices')
  */
-    __pyx_t_5 = __Pyx_PyObject_Call(__pyx_builtin_RuntimeError, __pyx_tuple__2, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 82, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_Call(__pyx_builtin_RuntimeError, __pyx_tuple__2, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 85, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_Raise(__pyx_t_5, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __PYX_ERR(0, 82, __pyx_L1_error)
+    __PYX_ERR(0, 85, __pyx_L1_error)
 
-    /* "wikidata2vec/link_graph.pyx":81
+    /* "wikidata2vec/link_graph.pyx":84
  *                 target = joblib.load(target)
  * 
  *         if target['build_params']['dictionary'] != dictionary.uuid:             # <<<<<<<<<<<<<<
@@ -4402,14 +4384,14 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_8load(PyObject 
  */
   }
 
-  /* "wikidata2vec/link_graph.pyx":84
+  /* "wikidata2vec/link_graph.pyx":87
  *             raise RuntimeError('The specified dictionary is different from the one used to build this link graph')
  * 
  *         indices = target.pop('indices')             # <<<<<<<<<<<<<<
  *         indptr = target.pop('indptr')
  *         if not isinstance(indices, np.ndarray):
  */
-  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_target, __pyx_n_s_pop); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 84, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_target, __pyx_n_s_pop); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 87, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_6))) {
@@ -4423,20 +4405,20 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_8load(PyObject 
   }
   __pyx_t_5 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_6, __pyx_t_3, __pyx_n_u_indices) : __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_n_u_indices);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 84, __pyx_L1_error)
+  if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 87, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __pyx_v_indices = __pyx_t_5;
   __pyx_t_5 = 0;
 
-  /* "wikidata2vec/link_graph.pyx":85
+  /* "wikidata2vec/link_graph.pyx":88
  * 
  *         indices = target.pop('indices')
  *         indptr = target.pop('indptr')             # <<<<<<<<<<<<<<
  *         if not isinstance(indices, np.ndarray):
  *             indices = np.frombuffer(indices, dtype=np.int32)
  */
-  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_target, __pyx_n_s_pop); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 85, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_target, __pyx_n_s_pop); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 88, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_6))) {
@@ -4450,13 +4432,13 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_8load(PyObject 
   }
   __pyx_t_5 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_6, __pyx_t_3, __pyx_n_u_indptr) : __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_n_u_indptr);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 85, __pyx_L1_error)
+  if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 88, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __pyx_v_indptr = __pyx_t_5;
   __pyx_t_5 = 0;
 
-  /* "wikidata2vec/link_graph.pyx":86
+  /* "wikidata2vec/link_graph.pyx":89
  *         indices = target.pop('indices')
  *         indptr = target.pop('indptr')
  *         if not isinstance(indices, np.ndarray):             # <<<<<<<<<<<<<<
@@ -4467,33 +4449,33 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_8load(PyObject 
   __pyx_t_1 = ((!(__pyx_t_2 != 0)) != 0);
   if (__pyx_t_1) {
 
-    /* "wikidata2vec/link_graph.pyx":87
+    /* "wikidata2vec/link_graph.pyx":90
  *         indptr = target.pop('indptr')
  *         if not isinstance(indices, np.ndarray):
  *             indices = np.frombuffer(indices, dtype=np.int32)             # <<<<<<<<<<<<<<
  *             indptr = np.frombuffer(indptr, dtype=np.int32)
  * 
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 87, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 90, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_frombuffer); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 87, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_frombuffer); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 90, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_5 = PyTuple_New(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 87, __pyx_L1_error)
+    __pyx_t_5 = PyTuple_New(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 90, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_INCREF(__pyx_v_indices);
     __Pyx_GIVEREF(__pyx_v_indices);
     PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_v_indices);
-    __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 87, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 90, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 87, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 90, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_int32); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 87, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_int32); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 90, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, __pyx_t_7) < 0) __PYX_ERR(0, 87, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, __pyx_t_7) < 0) __PYX_ERR(0, 90, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_5, __pyx_t_3); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 87, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_5, __pyx_t_3); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 90, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
@@ -4501,33 +4483,33 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_8load(PyObject 
     __Pyx_DECREF_SET(__pyx_v_indices, __pyx_t_7);
     __pyx_t_7 = 0;
 
-    /* "wikidata2vec/link_graph.pyx":88
+    /* "wikidata2vec/link_graph.pyx":91
  *         if not isinstance(indices, np.ndarray):
  *             indices = np.frombuffer(indices, dtype=np.int32)
  *             indptr = np.frombuffer(indptr, dtype=np.int32)             # <<<<<<<<<<<<<<
  * 
  *         return LinkGraph(dictionary, indices, indptr, **target)
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_np); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 88, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_np); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 91, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_frombuffer); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 88, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_frombuffer); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 91, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    __pyx_t_7 = PyTuple_New(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 88, __pyx_L1_error)
+    __pyx_t_7 = PyTuple_New(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 91, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_INCREF(__pyx_v_indptr);
     __Pyx_GIVEREF(__pyx_v_indptr);
     PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_v_indptr);
-    __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 88, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 91, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 88, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 91, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_int32); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 88, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_int32); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 91, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dtype, __pyx_t_4) < 0) __PYX_ERR(0, 88, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dtype, __pyx_t_4) < 0) __PYX_ERR(0, 91, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_7, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 88, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_7, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 91, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
@@ -4535,7 +4517,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_8load(PyObject 
     __Pyx_DECREF_SET(__pyx_v_indptr, __pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "wikidata2vec/link_graph.pyx":86
+    /* "wikidata2vec/link_graph.pyx":89
  *         indices = target.pop('indices')
  *         indptr = target.pop('indptr')
  *         if not isinstance(indices, np.ndarray):             # <<<<<<<<<<<<<<
@@ -4544,7 +4526,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_8load(PyObject 
  */
   }
 
-  /* "wikidata2vec/link_graph.pyx":90
+  /* "wikidata2vec/link_graph.pyx":93
  *             indptr = np.frombuffer(indptr, dtype=np.int32)
  * 
  *         return LinkGraph(dictionary, indices, indptr, **target)             # <<<<<<<<<<<<<<
@@ -4552,7 +4534,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_8load(PyObject 
  *     @staticmethod
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_4 = PyTuple_New(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 90, __pyx_L1_error)
+  __pyx_t_4 = PyTuple_New(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 93, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_INCREF(__pyx_v_dictionary);
   __Pyx_GIVEREF(__pyx_v_dictionary);
@@ -4565,16 +4547,16 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_8load(PyObject 
   PyTuple_SET_ITEM(__pyx_t_4, 2, __pyx_v_indptr);
   if (unlikely(__pyx_v_target == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "argument after ** must be a mapping, not NoneType");
-    __PYX_ERR(0, 90, __pyx_L1_error)
+    __PYX_ERR(0, 93, __pyx_L1_error)
   }
   if (likely(PyDict_CheckExact(__pyx_v_target))) {
-    __pyx_t_5 = PyDict_Copy(__pyx_v_target); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 90, __pyx_L1_error)
+    __pyx_t_5 = PyDict_Copy(__pyx_v_target); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 93, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
   } else {
-    __pyx_t_5 = PyObject_CallFunctionObjArgs((PyObject*)&PyDict_Type, __pyx_v_target, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 90, __pyx_L1_error)
+    __pyx_t_5 = PyObject_CallFunctionObjArgs((PyObject*)&PyDict_Type, __pyx_v_target, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 93, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
   }
-  __pyx_t_7 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_12wikidata2vec_10link_graph_LinkGraph), __pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 90, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_12wikidata2vec_10link_graph_LinkGraph), __pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 93, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
@@ -4582,7 +4564,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_8load(PyObject 
   __pyx_t_7 = 0;
   goto __pyx_L0;
 
-  /* "wikidata2vec/link_graph.pyx":74
+  /* "wikidata2vec/link_graph.pyx":77
  * 
  *     @staticmethod
  *     def load(target, dictionary, bint mmap=True):             # <<<<<<<<<<<<<<
@@ -4608,7 +4590,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_8load(PyObject 
   return __pyx_r;
 }
 
-/* "wikidata2vec/link_graph.pyx":93
+/* "wikidata2vec/link_graph.pyx":96
  * 
  *     @staticmethod
  *     def build(dump_db, dictionary, pool_size, chunk_size, progressbar=True):             # <<<<<<<<<<<<<<
@@ -4661,19 +4643,19 @@ static PyObject *__pyx_pw_12wikidata2vec_10link_graph_9LinkGraph_11build(CYTHON_
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_dictionary)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("build", 0, 4, 5, 1); __PYX_ERR(0, 93, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("build", 0, 4, 5, 1); __PYX_ERR(0, 96, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_pool_size)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("build", 0, 4, 5, 2); __PYX_ERR(0, 93, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("build", 0, 4, 5, 2); __PYX_ERR(0, 96, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_chunk_size)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("build", 0, 4, 5, 3); __PYX_ERR(0, 93, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("build", 0, 4, 5, 3); __PYX_ERR(0, 96, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  4:
@@ -4683,7 +4665,7 @@ static PyObject *__pyx_pw_12wikidata2vec_10link_graph_9LinkGraph_11build(CYTHON_
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "build") < 0)) __PYX_ERR(0, 93, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "build") < 0)) __PYX_ERR(0, 96, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -4705,7 +4687,7 @@ static PyObject *__pyx_pw_12wikidata2vec_10link_graph_9LinkGraph_11build(CYTHON_
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("build", 0, 4, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 93, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("build", 0, 4, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 96, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("wikidata2vec.link_graph.LinkGraph.build", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -4761,16 +4743,16 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("build", 0);
 
-  /* "wikidata2vec/link_graph.pyx":94
+  /* "wikidata2vec/link_graph.pyx":97
  *     @staticmethod
  *     def build(dump_db, dictionary, pool_size, chunk_size, progressbar=True):
  *         start_time = time.time()             # <<<<<<<<<<<<<<
  * 
  *         logger.info('Step 1/2: Processing Wikipedia pages...')
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_time); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 94, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_time); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 97, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_time); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 94, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_time); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 97, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_2 = NULL;
@@ -4785,22 +4767,22 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
   }
   __pyx_t_1 = (__pyx_t_2) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 94, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 97, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_v_start_time = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "wikidata2vec/link_graph.pyx":96
+  /* "wikidata2vec/link_graph.pyx":99
  *         start_time = time.time()
  * 
  *         logger.info('Step 1/2: Processing Wikipedia pages...')             # <<<<<<<<<<<<<<
  * 
  *         with closing(Pool(pool_size, initializer=init_worker,
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_logger); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 96, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_logger); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 99, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_info); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 96, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_info); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 99, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_3 = NULL;
@@ -4815,12 +4797,12 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
   }
   __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_kp_u_Step_1_2_Processing_Wikipedia_pa) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_kp_u_Step_1_2_Processing_Wikipedia_pa);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 96, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 99, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "wikidata2vec/link_graph.pyx":98
+  /* "wikidata2vec/link_graph.pyx":101
  *         logger.info('Step 1/2: Processing Wikipedia pages...')
  * 
  *         with closing(Pool(pool_size, initializer=init_worker,             # <<<<<<<<<<<<<<
@@ -4828,39 +4810,39 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
  *             rows = []
  */
   /*with:*/ {
-    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_closing); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 98, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_closing); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 101, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_Pool); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 98, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_Pool); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 101, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 98, __pyx_L1_error)
+    __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 101, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_INCREF(__pyx_v_pool_size);
     __Pyx_GIVEREF(__pyx_v_pool_size);
     PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_v_pool_size);
-    __pyx_t_5 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 98, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 101, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_init_worker); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 98, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_init_worker); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 101, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_initializer, __pyx_t_6) < 0) __PYX_ERR(0, 98, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_initializer, __pyx_t_6) < 0) __PYX_ERR(0, 101, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-    /* "wikidata2vec/link_graph.pyx":99
+    /* "wikidata2vec/link_graph.pyx":102
  * 
  *         with closing(Pool(pool_size, initializer=init_worker,
  *                           initargs=(dump_db, dictionary.serialize(shared_array=True)))) as pool:             # <<<<<<<<<<<<<<
  *             rows = []
  *             cols = []
  */
-    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_dictionary, __pyx_n_s_serialize); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 99, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_dictionary, __pyx_n_s_serialize); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 102, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 99, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 102, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
-    if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_shared_array, Py_True) < 0) __PYX_ERR(0, 99, __pyx_L1_error)
-    __pyx_t_8 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_empty_tuple, __pyx_t_7); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 99, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_shared_array, Py_True) < 0) __PYX_ERR(0, 102, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_empty_tuple, __pyx_t_7); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 102, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    __pyx_t_7 = PyTuple_New(2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 99, __pyx_L1_error)
+    __pyx_t_7 = PyTuple_New(2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 102, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_INCREF(__pyx_v_dump_db);
     __Pyx_GIVEREF(__pyx_v_dump_db);
@@ -4868,17 +4850,17 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
     __Pyx_GIVEREF(__pyx_t_8);
     PyTuple_SET_ITEM(__pyx_t_7, 1, __pyx_t_8);
     __pyx_t_8 = 0;
-    if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_initargs, __pyx_t_7) < 0) __PYX_ERR(0, 98, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_initargs, __pyx_t_7) < 0) __PYX_ERR(0, 101, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-    /* "wikidata2vec/link_graph.pyx":98
+    /* "wikidata2vec/link_graph.pyx":101
  *         logger.info('Step 1/2: Processing Wikipedia pages...')
  * 
  *         with closing(Pool(pool_size, initializer=init_worker,             # <<<<<<<<<<<<<<
  *                           initargs=(dump_db, dictionary.serialize(shared_array=True)))) as pool:
  *             rows = []
  */
-    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 98, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 101, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -4896,12 +4878,12 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
     __pyx_t_1 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_5, __pyx_t_7) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_7);
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 98, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 101, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_9 = __Pyx_PyObject_LookupSpecial(__pyx_t_1, __pyx_n_s_exit); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 98, __pyx_L1_error)
+    __pyx_t_9 = __Pyx_PyObject_LookupSpecial(__pyx_t_1, __pyx_n_s_exit); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 101, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_9);
-    __pyx_t_7 = __Pyx_PyObject_LookupSpecial(__pyx_t_1, __pyx_n_s_enter); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 98, __pyx_L3_error)
+    __pyx_t_7 = __Pyx_PyObject_LookupSpecial(__pyx_t_1, __pyx_n_s_enter); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 101, __pyx_L3_error)
     __Pyx_GOTREF(__pyx_t_7);
     __pyx_t_5 = NULL;
     if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_7))) {
@@ -4915,7 +4897,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
     }
     __pyx_t_2 = (__pyx_t_5) ? __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_5) : __Pyx_PyObject_CallNoArg(__pyx_t_7);
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 98, __pyx_L3_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 101, __pyx_L3_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     __pyx_t_7 = __pyx_t_2;
@@ -4933,31 +4915,31 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
           __pyx_v_pool = __pyx_t_7;
           __pyx_t_7 = 0;
 
-          /* "wikidata2vec/link_graph.pyx":100
+          /* "wikidata2vec/link_graph.pyx":103
  *         with closing(Pool(pool_size, initializer=init_worker,
  *                           initargs=(dump_db, dictionary.serialize(shared_array=True)))) as pool:
  *             rows = []             # <<<<<<<<<<<<<<
  *             cols = []
  * 
  */
-          __pyx_t_7 = PyList_New(0); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 100, __pyx_L7_error)
+          __pyx_t_7 = PyList_New(0); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 103, __pyx_L7_error)
           __Pyx_GOTREF(__pyx_t_7);
           __pyx_v_rows = ((PyObject*)__pyx_t_7);
           __pyx_t_7 = 0;
 
-          /* "wikidata2vec/link_graph.pyx":101
+          /* "wikidata2vec/link_graph.pyx":104
  *                           initargs=(dump_db, dictionary.serialize(shared_array=True)))) as pool:
  *             rows = []
  *             cols = []             # <<<<<<<<<<<<<<
  * 
  *             with tqdm(total=dump_db.page_size(), mininterval=0.5, disable=not progressbar) as bar:
  */
-          __pyx_t_7 = PyList_New(0); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 101, __pyx_L7_error)
+          __pyx_t_7 = PyList_New(0); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 104, __pyx_L7_error)
           __Pyx_GOTREF(__pyx_t_7);
           __pyx_v_cols = ((PyObject*)__pyx_t_7);
           __pyx_t_7 = 0;
 
-          /* "wikidata2vec/link_graph.pyx":103
+          /* "wikidata2vec/link_graph.pyx":106
  *             cols = []
  * 
  *             with tqdm(total=dump_db.page_size(), mininterval=0.5, disable=not progressbar) as bar:             # <<<<<<<<<<<<<<
@@ -4965,11 +4947,11 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
  * 
  */
           /*with:*/ {
-            __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_tqdm); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 103, __pyx_L7_error)
+            __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_tqdm); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 106, __pyx_L7_error)
             __Pyx_GOTREF(__pyx_t_7);
-            __pyx_t_1 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 103, __pyx_L7_error)
+            __pyx_t_1 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 106, __pyx_L7_error)
             __Pyx_GOTREF(__pyx_t_1);
-            __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_dump_db, __pyx_n_s_page_size); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 103, __pyx_L7_error)
+            __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_dump_db, __pyx_n_s_page_size); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 106, __pyx_L7_error)
             __Pyx_GOTREF(__pyx_t_5);
             __pyx_t_4 = NULL;
             if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_5))) {
@@ -4983,24 +4965,24 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
             }
             __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_5);
             __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-            if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 103, __pyx_L7_error)
+            if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 106, __pyx_L7_error)
             __Pyx_GOTREF(__pyx_t_2);
             __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-            if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_total, __pyx_t_2) < 0) __PYX_ERR(0, 103, __pyx_L7_error)
+            if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_total, __pyx_t_2) < 0) __PYX_ERR(0, 106, __pyx_L7_error)
             __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-            if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_mininterval, __pyx_float_0_5) < 0) __PYX_ERR(0, 103, __pyx_L7_error)
-            __pyx_t_13 = __Pyx_PyObject_IsTrue(__pyx_v_progressbar); if (unlikely(__pyx_t_13 < 0)) __PYX_ERR(0, 103, __pyx_L7_error)
-            __pyx_t_2 = __Pyx_PyBool_FromLong((!__pyx_t_13)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 103, __pyx_L7_error)
+            if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_mininterval, __pyx_float_0_5) < 0) __PYX_ERR(0, 106, __pyx_L7_error)
+            __pyx_t_13 = __Pyx_PyObject_IsTrue(__pyx_v_progressbar); if (unlikely(__pyx_t_13 < 0)) __PYX_ERR(0, 106, __pyx_L7_error)
+            __pyx_t_2 = __Pyx_PyBool_FromLong((!__pyx_t_13)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 106, __pyx_L7_error)
             __Pyx_GOTREF(__pyx_t_2);
-            if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_disable, __pyx_t_2) < 0) __PYX_ERR(0, 103, __pyx_L7_error)
+            if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_disable, __pyx_t_2) < 0) __PYX_ERR(0, 106, __pyx_L7_error)
             __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-            __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_empty_tuple, __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 103, __pyx_L7_error)
+            __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_empty_tuple, __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 106, __pyx_L7_error)
             __Pyx_GOTREF(__pyx_t_2);
             __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
             __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-            __pyx_t_14 = __Pyx_PyObject_LookupSpecial(__pyx_t_2, __pyx_n_s_exit); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 103, __pyx_L7_error)
+            __pyx_t_14 = __Pyx_PyObject_LookupSpecial(__pyx_t_2, __pyx_n_s_exit); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 106, __pyx_L7_error)
             __Pyx_GOTREF(__pyx_t_14);
-            __pyx_t_7 = __Pyx_PyObject_LookupSpecial(__pyx_t_2, __pyx_n_s_enter); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 103, __pyx_L13_error)
+            __pyx_t_7 = __Pyx_PyObject_LookupSpecial(__pyx_t_2, __pyx_n_s_enter); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 106, __pyx_L13_error)
             __Pyx_GOTREF(__pyx_t_7);
             __pyx_t_5 = NULL;
             if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_7))) {
@@ -5014,7 +4996,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
             }
             __pyx_t_1 = (__pyx_t_5) ? __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_5) : __Pyx_PyObject_CallNoArg(__pyx_t_7);
             __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-            if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 103, __pyx_L13_error)
+            if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 106, __pyx_L13_error)
             __Pyx_GOTREF(__pyx_t_1);
             __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
             __pyx_t_7 = __pyx_t_1;
@@ -5032,29 +5014,29 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
                   __pyx_v_bar = __pyx_t_7;
                   __pyx_t_7 = 0;
 
-                  /* "wikidata2vec/link_graph.pyx":104
+                  /* "wikidata2vec/link_graph.pyx":107
  * 
  *             with tqdm(total=dump_db.page_size(), mininterval=0.5, disable=not progressbar) as bar:
  *                 f = partial(_process_page, offset=dictionary.entity_offset)             # <<<<<<<<<<<<<<
  * 
  *                 for ret in pool.imap_unordered(f, dump_db.titles(), chunksize=chunk_size):
  */
-                  __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_partial); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 104, __pyx_L17_error)
+                  __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_partial); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 107, __pyx_L17_error)
                   __Pyx_GOTREF(__pyx_t_7);
-                  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_process_page); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 104, __pyx_L17_error)
+                  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_process_page); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 107, __pyx_L17_error)
                   __Pyx_GOTREF(__pyx_t_2);
-                  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 104, __pyx_L17_error)
+                  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 107, __pyx_L17_error)
                   __Pyx_GOTREF(__pyx_t_1);
                   __Pyx_GIVEREF(__pyx_t_2);
                   PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_t_2);
                   __pyx_t_2 = 0;
-                  __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 104, __pyx_L17_error)
+                  __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 107, __pyx_L17_error)
                   __Pyx_GOTREF(__pyx_t_2);
-                  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_dictionary, __pyx_n_s_entity_offset); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 104, __pyx_L17_error)
+                  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_dictionary, __pyx_n_s_entity_offset); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 107, __pyx_L17_error)
                   __Pyx_GOTREF(__pyx_t_5);
-                  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_offset, __pyx_t_5) < 0) __PYX_ERR(0, 104, __pyx_L17_error)
+                  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_offset, __pyx_t_5) < 0) __PYX_ERR(0, 107, __pyx_L17_error)
                   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-                  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 104, __pyx_L17_error)
+                  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 107, __pyx_L17_error)
                   __Pyx_GOTREF(__pyx_t_5);
                   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
                   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -5062,16 +5044,16 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
                   __pyx_v_f = __pyx_t_5;
                   __pyx_t_5 = 0;
 
-                  /* "wikidata2vec/link_graph.pyx":106
+                  /* "wikidata2vec/link_graph.pyx":109
  *                 f = partial(_process_page, offset=dictionary.entity_offset)
  * 
  *                 for ret in pool.imap_unordered(f, dump_db.titles(), chunksize=chunk_size):             # <<<<<<<<<<<<<<
  *                     if ret:
  *                         (page_indices, dest_indices) = ret
  */
-                  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_pool, __pyx_n_s_imap_unordered); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 106, __pyx_L17_error)
+                  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_pool, __pyx_n_s_imap_unordered); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 109, __pyx_L17_error)
                   __Pyx_GOTREF(__pyx_t_5);
-                  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_dump_db, __pyx_n_s_titles); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 106, __pyx_L17_error)
+                  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_dump_db, __pyx_n_s_titles); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 109, __pyx_L17_error)
                   __Pyx_GOTREF(__pyx_t_1);
                   __pyx_t_7 = NULL;
                   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_1))) {
@@ -5085,10 +5067,10 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
                   }
                   __pyx_t_2 = (__pyx_t_7) ? __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_7) : __Pyx_PyObject_CallNoArg(__pyx_t_1);
                   __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
-                  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 106, __pyx_L17_error)
+                  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 109, __pyx_L17_error)
                   __Pyx_GOTREF(__pyx_t_2);
                   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-                  __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 106, __pyx_L17_error)
+                  __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 109, __pyx_L17_error)
                   __Pyx_GOTREF(__pyx_t_1);
                   __Pyx_INCREF(__pyx_v_f);
                   __Pyx_GIVEREF(__pyx_v_f);
@@ -5096,10 +5078,10 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
                   __Pyx_GIVEREF(__pyx_t_2);
                   PyTuple_SET_ITEM(__pyx_t_1, 1, __pyx_t_2);
                   __pyx_t_2 = 0;
-                  __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 106, __pyx_L17_error)
+                  __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 109, __pyx_L17_error)
                   __Pyx_GOTREF(__pyx_t_2);
-                  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_chunksize, __pyx_v_chunk_size) < 0) __PYX_ERR(0, 106, __pyx_L17_error)
-                  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 106, __pyx_L17_error)
+                  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_chunksize, __pyx_v_chunk_size) < 0) __PYX_ERR(0, 109, __pyx_L17_error)
+                  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 109, __pyx_L17_error)
                   __Pyx_GOTREF(__pyx_t_7);
                   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
                   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -5108,9 +5090,9 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
                     __pyx_t_2 = __pyx_t_7; __Pyx_INCREF(__pyx_t_2); __pyx_t_18 = 0;
                     __pyx_t_19 = NULL;
                   } else {
-                    __pyx_t_18 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 106, __pyx_L17_error)
+                    __pyx_t_18 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 109, __pyx_L17_error)
                     __Pyx_GOTREF(__pyx_t_2);
-                    __pyx_t_19 = Py_TYPE(__pyx_t_2)->tp_iternext; if (unlikely(!__pyx_t_19)) __PYX_ERR(0, 106, __pyx_L17_error)
+                    __pyx_t_19 = Py_TYPE(__pyx_t_2)->tp_iternext; if (unlikely(!__pyx_t_19)) __PYX_ERR(0, 109, __pyx_L17_error)
                   }
                   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
                   for (;;) {
@@ -5118,17 +5100,17 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
                       if (likely(PyList_CheckExact(__pyx_t_2))) {
                         if (__pyx_t_18 >= PyList_GET_SIZE(__pyx_t_2)) break;
                         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-                        __pyx_t_7 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_18); __Pyx_INCREF(__pyx_t_7); __pyx_t_18++; if (unlikely(0 < 0)) __PYX_ERR(0, 106, __pyx_L17_error)
+                        __pyx_t_7 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_18); __Pyx_INCREF(__pyx_t_7); __pyx_t_18++; if (unlikely(0 < 0)) __PYX_ERR(0, 109, __pyx_L17_error)
                         #else
-                        __pyx_t_7 = PySequence_ITEM(__pyx_t_2, __pyx_t_18); __pyx_t_18++; if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 106, __pyx_L17_error)
+                        __pyx_t_7 = PySequence_ITEM(__pyx_t_2, __pyx_t_18); __pyx_t_18++; if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 109, __pyx_L17_error)
                         __Pyx_GOTREF(__pyx_t_7);
                         #endif
                       } else {
                         if (__pyx_t_18 >= PyTuple_GET_SIZE(__pyx_t_2)) break;
                         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-                        __pyx_t_7 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_18); __Pyx_INCREF(__pyx_t_7); __pyx_t_18++; if (unlikely(0 < 0)) __PYX_ERR(0, 106, __pyx_L17_error)
+                        __pyx_t_7 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_18); __Pyx_INCREF(__pyx_t_7); __pyx_t_18++; if (unlikely(0 < 0)) __PYX_ERR(0, 109, __pyx_L17_error)
                         #else
-                        __pyx_t_7 = PySequence_ITEM(__pyx_t_2, __pyx_t_18); __pyx_t_18++; if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 106, __pyx_L17_error)
+                        __pyx_t_7 = PySequence_ITEM(__pyx_t_2, __pyx_t_18); __pyx_t_18++; if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 109, __pyx_L17_error)
                         __Pyx_GOTREF(__pyx_t_7);
                         #endif
                       }
@@ -5138,7 +5120,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
                         PyObject* exc_type = PyErr_Occurred();
                         if (exc_type) {
                           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-                          else __PYX_ERR(0, 106, __pyx_L17_error)
+                          else __PYX_ERR(0, 109, __pyx_L17_error)
                         }
                         break;
                       }
@@ -5147,17 +5129,17 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
                     __Pyx_XDECREF_SET(__pyx_v_ret, __pyx_t_7);
                     __pyx_t_7 = 0;
 
-                    /* "wikidata2vec/link_graph.pyx":107
+                    /* "wikidata2vec/link_graph.pyx":110
  * 
  *                 for ret in pool.imap_unordered(f, dump_db.titles(), chunksize=chunk_size):
  *                     if ret:             # <<<<<<<<<<<<<<
  *                         (page_indices, dest_indices) = ret
  *                         rows.append(page_indices)
  */
-                    __pyx_t_13 = __Pyx_PyObject_IsTrue(__pyx_v_ret); if (unlikely(__pyx_t_13 < 0)) __PYX_ERR(0, 107, __pyx_L17_error)
+                    __pyx_t_13 = __Pyx_PyObject_IsTrue(__pyx_v_ret); if (unlikely(__pyx_t_13 < 0)) __PYX_ERR(0, 110, __pyx_L17_error)
                     if (__pyx_t_13) {
 
-                      /* "wikidata2vec/link_graph.pyx":108
+                      /* "wikidata2vec/link_graph.pyx":111
  *                 for ret in pool.imap_unordered(f, dump_db.titles(), chunksize=chunk_size):
  *                     if ret:
  *                         (page_indices, dest_indices) = ret             # <<<<<<<<<<<<<<
@@ -5170,7 +5152,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
                         if (unlikely(size != 2)) {
                           if (size > 2) __Pyx_RaiseTooManyValuesError(2);
                           else if (size >= 0) __Pyx_RaiseNeedMoreValuesError(size);
-                          __PYX_ERR(0, 108, __pyx_L17_error)
+                          __PYX_ERR(0, 111, __pyx_L17_error)
                         }
                         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
                         if (likely(PyTuple_CheckExact(sequence))) {
@@ -5183,21 +5165,21 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
                         __Pyx_INCREF(__pyx_t_7);
                         __Pyx_INCREF(__pyx_t_1);
                         #else
-                        __pyx_t_7 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 108, __pyx_L17_error)
+                        __pyx_t_7 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 111, __pyx_L17_error)
                         __Pyx_GOTREF(__pyx_t_7);
-                        __pyx_t_1 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 108, __pyx_L17_error)
+                        __pyx_t_1 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 111, __pyx_L17_error)
                         __Pyx_GOTREF(__pyx_t_1);
                         #endif
                       } else {
                         Py_ssize_t index = -1;
-                        __pyx_t_5 = PyObject_GetIter(__pyx_v_ret); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 108, __pyx_L17_error)
+                        __pyx_t_5 = PyObject_GetIter(__pyx_v_ret); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 111, __pyx_L17_error)
                         __Pyx_GOTREF(__pyx_t_5);
                         __pyx_t_20 = Py_TYPE(__pyx_t_5)->tp_iternext;
                         index = 0; __pyx_t_7 = __pyx_t_20(__pyx_t_5); if (unlikely(!__pyx_t_7)) goto __pyx_L26_unpacking_failed;
                         __Pyx_GOTREF(__pyx_t_7);
                         index = 1; __pyx_t_1 = __pyx_t_20(__pyx_t_5); if (unlikely(!__pyx_t_1)) goto __pyx_L26_unpacking_failed;
                         __Pyx_GOTREF(__pyx_t_1);
-                        if (__Pyx_IternextUnpackEndCheck(__pyx_t_20(__pyx_t_5), 2) < 0) __PYX_ERR(0, 108, __pyx_L17_error)
+                        if (__Pyx_IternextUnpackEndCheck(__pyx_t_20(__pyx_t_5), 2) < 0) __PYX_ERR(0, 111, __pyx_L17_error)
                         __pyx_t_20 = NULL;
                         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
                         goto __pyx_L27_unpacking_done;
@@ -5205,7 +5187,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
                         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
                         __pyx_t_20 = NULL;
                         if (__Pyx_IterFinish() == 0) __Pyx_RaiseNeedMoreValuesError(index);
-                        __PYX_ERR(0, 108, __pyx_L17_error)
+                        __PYX_ERR(0, 111, __pyx_L17_error)
                         __pyx_L27_unpacking_done:;
                       }
                       __Pyx_XDECREF_SET(__pyx_v_page_indices, __pyx_t_7);
@@ -5213,43 +5195,43 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
                       __Pyx_XDECREF_SET(__pyx_v_dest_indices, __pyx_t_1);
                       __pyx_t_1 = 0;
 
-                      /* "wikidata2vec/link_graph.pyx":109
+                      /* "wikidata2vec/link_graph.pyx":112
  *                     if ret:
  *                         (page_indices, dest_indices) = ret
  *                         rows.append(page_indices)             # <<<<<<<<<<<<<<
  *                         rows.append(dest_indices)
  *                         cols.append(dest_indices)
  */
-                      __pyx_t_21 = __Pyx_PyList_Append(__pyx_v_rows, __pyx_v_page_indices); if (unlikely(__pyx_t_21 == ((int)-1))) __PYX_ERR(0, 109, __pyx_L17_error)
+                      __pyx_t_21 = __Pyx_PyList_Append(__pyx_v_rows, __pyx_v_page_indices); if (unlikely(__pyx_t_21 == ((int)-1))) __PYX_ERR(0, 112, __pyx_L17_error)
 
-                      /* "wikidata2vec/link_graph.pyx":110
+                      /* "wikidata2vec/link_graph.pyx":113
  *                         (page_indices, dest_indices) = ret
  *                         rows.append(page_indices)
  *                         rows.append(dest_indices)             # <<<<<<<<<<<<<<
  *                         cols.append(dest_indices)
  *                         cols.append(page_indices)
  */
-                      __pyx_t_21 = __Pyx_PyList_Append(__pyx_v_rows, __pyx_v_dest_indices); if (unlikely(__pyx_t_21 == ((int)-1))) __PYX_ERR(0, 110, __pyx_L17_error)
+                      __pyx_t_21 = __Pyx_PyList_Append(__pyx_v_rows, __pyx_v_dest_indices); if (unlikely(__pyx_t_21 == ((int)-1))) __PYX_ERR(0, 113, __pyx_L17_error)
 
-                      /* "wikidata2vec/link_graph.pyx":111
+                      /* "wikidata2vec/link_graph.pyx":114
  *                         rows.append(page_indices)
  *                         rows.append(dest_indices)
  *                         cols.append(dest_indices)             # <<<<<<<<<<<<<<
  *                         cols.append(page_indices)
  * 
  */
-                      __pyx_t_21 = __Pyx_PyList_Append(__pyx_v_cols, __pyx_v_dest_indices); if (unlikely(__pyx_t_21 == ((int)-1))) __PYX_ERR(0, 111, __pyx_L17_error)
+                      __pyx_t_21 = __Pyx_PyList_Append(__pyx_v_cols, __pyx_v_dest_indices); if (unlikely(__pyx_t_21 == ((int)-1))) __PYX_ERR(0, 114, __pyx_L17_error)
 
-                      /* "wikidata2vec/link_graph.pyx":112
+                      /* "wikidata2vec/link_graph.pyx":115
  *                         rows.append(dest_indices)
  *                         cols.append(dest_indices)
  *                         cols.append(page_indices)             # <<<<<<<<<<<<<<
  * 
  *                     bar.update(1)
  */
-                      __pyx_t_21 = __Pyx_PyList_Append(__pyx_v_cols, __pyx_v_page_indices); if (unlikely(__pyx_t_21 == ((int)-1))) __PYX_ERR(0, 112, __pyx_L17_error)
+                      __pyx_t_21 = __Pyx_PyList_Append(__pyx_v_cols, __pyx_v_page_indices); if (unlikely(__pyx_t_21 == ((int)-1))) __PYX_ERR(0, 115, __pyx_L17_error)
 
-                      /* "wikidata2vec/link_graph.pyx":107
+                      /* "wikidata2vec/link_graph.pyx":110
  * 
  *                 for ret in pool.imap_unordered(f, dump_db.titles(), chunksize=chunk_size):
  *                     if ret:             # <<<<<<<<<<<<<<
@@ -5258,14 +5240,14 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
  */
                     }
 
-                    /* "wikidata2vec/link_graph.pyx":114
+                    /* "wikidata2vec/link_graph.pyx":117
  *                         cols.append(page_indices)
  * 
  *                     bar.update(1)             # <<<<<<<<<<<<<<
  * 
  *         logger.info('Step 2/2: Converting matrix...')
  */
-                    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_bar, __pyx_n_s_update); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 114, __pyx_L17_error)
+                    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_bar, __pyx_n_s_update); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 117, __pyx_L17_error)
                     __Pyx_GOTREF(__pyx_t_7);
                     __pyx_t_5 = NULL;
                     if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_7))) {
@@ -5279,12 +5261,12 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
                     }
                     __pyx_t_1 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_7, __pyx_t_5, __pyx_int_1) : __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_int_1);
                     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-                    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 114, __pyx_L17_error)
+                    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 117, __pyx_L17_error)
                     __Pyx_GOTREF(__pyx_t_1);
                     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
                     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-                    /* "wikidata2vec/link_graph.pyx":106
+                    /* "wikidata2vec/link_graph.pyx":109
  *                 f = partial(_process_page, offset=dictionary.entity_offset)
  * 
  *                 for ret in pool.imap_unordered(f, dump_db.titles(), chunksize=chunk_size):             # <<<<<<<<<<<<<<
@@ -5294,7 +5276,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
                   }
                   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-                  /* "wikidata2vec/link_graph.pyx":103
+                  /* "wikidata2vec/link_graph.pyx":106
  *             cols = []
  * 
  *             with tqdm(total=dump_db.page_size(), mininterval=0.5, disable=not progressbar) as bar:             # <<<<<<<<<<<<<<
@@ -5317,20 +5299,20 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
                 __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
                 /*except:*/ {
                   __Pyx_AddTraceback("wikidata2vec.link_graph.LinkGraph.build", __pyx_clineno, __pyx_lineno, __pyx_filename);
-                  if (__Pyx_GetException(&__pyx_t_2, &__pyx_t_1, &__pyx_t_7) < 0) __PYX_ERR(0, 103, __pyx_L19_except_error)
+                  if (__Pyx_GetException(&__pyx_t_2, &__pyx_t_1, &__pyx_t_7) < 0) __PYX_ERR(0, 106, __pyx_L19_except_error)
                   __Pyx_GOTREF(__pyx_t_2);
                   __Pyx_GOTREF(__pyx_t_1);
                   __Pyx_GOTREF(__pyx_t_7);
-                  __pyx_t_5 = PyTuple_Pack(3, __pyx_t_2, __pyx_t_1, __pyx_t_7); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 103, __pyx_L19_except_error)
+                  __pyx_t_5 = PyTuple_Pack(3, __pyx_t_2, __pyx_t_1, __pyx_t_7); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 106, __pyx_L19_except_error)
                   __Pyx_GOTREF(__pyx_t_5);
                   __pyx_t_22 = __Pyx_PyObject_Call(__pyx_t_14, __pyx_t_5, NULL);
                   __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
                   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-                  if (unlikely(!__pyx_t_22)) __PYX_ERR(0, 103, __pyx_L19_except_error)
+                  if (unlikely(!__pyx_t_22)) __PYX_ERR(0, 106, __pyx_L19_except_error)
                   __Pyx_GOTREF(__pyx_t_22);
                   __pyx_t_13 = __Pyx_PyObject_IsTrue(__pyx_t_22);
                   __Pyx_DECREF(__pyx_t_22); __pyx_t_22 = 0;
-                  if (__pyx_t_13 < 0) __PYX_ERR(0, 103, __pyx_L19_except_error)
+                  if (__pyx_t_13 < 0) __PYX_ERR(0, 106, __pyx_L19_except_error)
                   __pyx_t_23 = ((!(__pyx_t_13 != 0)) != 0);
                   if (__pyx_t_23) {
                     __Pyx_GIVEREF(__pyx_t_2);
@@ -5338,7 +5320,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
                     __Pyx_XGIVEREF(__pyx_t_7);
                     __Pyx_ErrRestoreWithState(__pyx_t_2, __pyx_t_1, __pyx_t_7);
                     __pyx_t_2 = 0; __pyx_t_1 = 0; __pyx_t_7 = 0; 
-                    __PYX_ERR(0, 103, __pyx_L19_except_error)
+                    __PYX_ERR(0, 106, __pyx_L19_except_error)
                   }
                   __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
                   __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -5364,7 +5346,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
                 if (__pyx_t_14) {
                   __pyx_t_17 = __Pyx_PyObject_Call(__pyx_t_14, __pyx_tuple__3, NULL);
                   __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
-                  if (unlikely(!__pyx_t_17)) __PYX_ERR(0, 103, __pyx_L7_error)
+                  if (unlikely(!__pyx_t_17)) __PYX_ERR(0, 106, __pyx_L7_error)
                   __Pyx_GOTREF(__pyx_t_17);
                   __Pyx_DECREF(__pyx_t_17); __pyx_t_17 = 0;
                 }
@@ -5379,7 +5361,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
             __pyx_L31:;
           }
 
-          /* "wikidata2vec/link_graph.pyx":98
+          /* "wikidata2vec/link_graph.pyx":101
  *         logger.info('Step 1/2: Processing Wikipedia pages...')
  * 
  *         with closing(Pool(pool_size, initializer=init_worker,             # <<<<<<<<<<<<<<
@@ -5402,20 +5384,20 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
         __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
         /*except:*/ {
           __Pyx_AddTraceback("wikidata2vec.link_graph.LinkGraph.build", __pyx_clineno, __pyx_lineno, __pyx_filename);
-          if (__Pyx_GetException(&__pyx_t_7, &__pyx_t_1, &__pyx_t_2) < 0) __PYX_ERR(0, 98, __pyx_L9_except_error)
+          if (__Pyx_GetException(&__pyx_t_7, &__pyx_t_1, &__pyx_t_2) < 0) __PYX_ERR(0, 101, __pyx_L9_except_error)
           __Pyx_GOTREF(__pyx_t_7);
           __Pyx_GOTREF(__pyx_t_1);
           __Pyx_GOTREF(__pyx_t_2);
-          __pyx_t_5 = PyTuple_Pack(3, __pyx_t_7, __pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 98, __pyx_L9_except_error)
+          __pyx_t_5 = PyTuple_Pack(3, __pyx_t_7, __pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 101, __pyx_L9_except_error)
           __Pyx_GOTREF(__pyx_t_5);
           __pyx_t_14 = __Pyx_PyObject_Call(__pyx_t_9, __pyx_t_5, NULL);
           __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
           __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-          if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 98, __pyx_L9_except_error)
+          if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 101, __pyx_L9_except_error)
           __Pyx_GOTREF(__pyx_t_14);
           __pyx_t_23 = __Pyx_PyObject_IsTrue(__pyx_t_14);
           __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
-          if (__pyx_t_23 < 0) __PYX_ERR(0, 98, __pyx_L9_except_error)
+          if (__pyx_t_23 < 0) __PYX_ERR(0, 101, __pyx_L9_except_error)
           __pyx_t_13 = ((!(__pyx_t_23 != 0)) != 0);
           if (__pyx_t_13) {
             __Pyx_GIVEREF(__pyx_t_7);
@@ -5423,7 +5405,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
             __Pyx_XGIVEREF(__pyx_t_2);
             __Pyx_ErrRestoreWithState(__pyx_t_7, __pyx_t_1, __pyx_t_2);
             __pyx_t_7 = 0; __pyx_t_1 = 0; __pyx_t_2 = 0; 
-            __PYX_ERR(0, 98, __pyx_L9_except_error)
+            __PYX_ERR(0, 101, __pyx_L9_except_error)
           }
           __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
           __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -5449,7 +5431,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
         if (__pyx_t_9) {
           __pyx_t_12 = __Pyx_PyObject_Call(__pyx_t_9, __pyx_tuple__3, NULL);
           __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-          if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 98, __pyx_L1_error)
+          if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 101, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_12);
           __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
         }
@@ -5464,16 +5446,16 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
     __pyx_L35:;
   }
 
-  /* "wikidata2vec/link_graph.pyx":116
+  /* "wikidata2vec/link_graph.pyx":119
  *                     bar.update(1)
  * 
  *         logger.info('Step 2/2: Converting matrix...')             # <<<<<<<<<<<<<<
  * 
  *         rows = list(chain(*rows))
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_logger); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 116, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_logger); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 119, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_info); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 116, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_info); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 119, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_1 = NULL;
@@ -5488,164 +5470,164 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
   }
   __pyx_t_2 = (__pyx_t_1) ? __Pyx_PyObject_Call2Args(__pyx_t_7, __pyx_t_1, __pyx_kp_u_Step_2_2_Converting_matrix) : __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_kp_u_Step_2_2_Converting_matrix);
   __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 116, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 119, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "wikidata2vec/link_graph.pyx":118
+  /* "wikidata2vec/link_graph.pyx":121
  *         logger.info('Step 2/2: Converting matrix...')
  * 
  *         rows = list(chain(*rows))             # <<<<<<<<<<<<<<
  *         cols = list(chain(*cols))
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_chain); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 118, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_chain); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 121, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (unlikely(!__pyx_v_rows)) { __Pyx_RaiseUnboundLocalError("rows"); __PYX_ERR(0, 118, __pyx_L1_error) }
-  __pyx_t_7 = PySequence_Tuple(__pyx_v_rows); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 118, __pyx_L1_error)
+  if (unlikely(!__pyx_v_rows)) { __Pyx_RaiseUnboundLocalError("rows"); __PYX_ERR(0, 121, __pyx_L1_error) }
+  __pyx_t_7 = PySequence_Tuple(__pyx_v_rows); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 121, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_7, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 118, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_7, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 121, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = PySequence_List(__pyx_t_1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 118, __pyx_L1_error)
+  __pyx_t_7 = PySequence_List(__pyx_t_1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 121, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_XDECREF_SET(__pyx_v_rows, ((PyObject*)__pyx_t_7));
   __pyx_t_7 = 0;
 
-  /* "wikidata2vec/link_graph.pyx":119
+  /* "wikidata2vec/link_graph.pyx":122
  * 
  *         rows = list(chain(*rows))
  *         cols = list(chain(*cols))             # <<<<<<<<<<<<<<
  * 
  *         matrix = coo_matrix((np.ones(len(rows), dtype=np.bool),
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_chain); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 119, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_chain); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 122, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (unlikely(!__pyx_v_cols)) { __Pyx_RaiseUnboundLocalError("cols"); __PYX_ERR(0, 119, __pyx_L1_error) }
-  __pyx_t_1 = PySequence_Tuple(__pyx_v_cols); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 119, __pyx_L1_error)
+  if (unlikely(!__pyx_v_cols)) { __Pyx_RaiseUnboundLocalError("cols"); __PYX_ERR(0, 122, __pyx_L1_error) }
+  __pyx_t_1 = PySequence_Tuple(__pyx_v_cols); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 122, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_1, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 119, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_1, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 122, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PySequence_List(__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 119, __pyx_L1_error)
+  __pyx_t_1 = PySequence_List(__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 122, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_XDECREF_SET(__pyx_v_cols, ((PyObject*)__pyx_t_1));
   __pyx_t_1 = 0;
 
-  /* "wikidata2vec/link_graph.pyx":121
+  /* "wikidata2vec/link_graph.pyx":124
  *         cols = list(chain(*cols))
  * 
  *         matrix = coo_matrix((np.ones(len(rows), dtype=np.bool),             # <<<<<<<<<<<<<<
  *                              (np.array(rows, dtype=np.int32),
  *                               np.array(cols, dtype=np.int32))), dtype=np.bool)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_coo_matrix); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 121, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_coo_matrix); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 124, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 121, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 124, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_ones); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 121, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_ones); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 124, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_18 = PyList_GET_SIZE(__pyx_v_rows); if (unlikely(__pyx_t_18 == ((Py_ssize_t)-1))) __PYX_ERR(0, 121, __pyx_L1_error)
-  __pyx_t_2 = PyInt_FromSsize_t(__pyx_t_18); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 121, __pyx_L1_error)
+  __pyx_t_18 = PyList_GET_SIZE(__pyx_v_rows); if (unlikely(__pyx_t_18 == ((Py_ssize_t)-1))) __PYX_ERR(0, 124, __pyx_L1_error)
+  __pyx_t_2 = PyInt_FromSsize_t(__pyx_t_18); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 124, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_5 = PyTuple_New(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 121, __pyx_L1_error)
+  __pyx_t_5 = PyTuple_New(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 124, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_GIVEREF(__pyx_t_2);
   PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_2);
   __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 121, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 124, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 121, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 124, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_bool); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 121, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_bool); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 124, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_3) < 0) __PYX_ERR(0, 121, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_3) < 0) __PYX_ERR(0, 124, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_5, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 121, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_5, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 124, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "wikidata2vec/link_graph.pyx":122
+  /* "wikidata2vec/link_graph.pyx":125
  * 
  *         matrix = coo_matrix((np.ones(len(rows), dtype=np.bool),
  *                              (np.array(rows, dtype=np.int32),             # <<<<<<<<<<<<<<
  *                               np.array(cols, dtype=np.int32))), dtype=np.bool)
  *         del rows, cols
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 122, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 125, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_array); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 122, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_array); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 125, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 122, __pyx_L1_error)
+  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 125, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(__pyx_v_rows);
   __Pyx_GIVEREF(__pyx_v_rows);
   PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_v_rows);
-  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 122, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 125, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 122, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 125, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_int32); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 122, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_int32); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 125, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_dtype, __pyx_t_8) < 0) __PYX_ERR(0, 122, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_dtype, __pyx_t_8) < 0) __PYX_ERR(0, 125, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-  __pyx_t_8 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_2, __pyx_t_7); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 122, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_2, __pyx_t_7); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 125, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-  /* "wikidata2vec/link_graph.pyx":123
+  /* "wikidata2vec/link_graph.pyx":126
  *         matrix = coo_matrix((np.ones(len(rows), dtype=np.bool),
  *                              (np.array(rows, dtype=np.int32),
  *                               np.array(cols, dtype=np.int32))), dtype=np.bool)             # <<<<<<<<<<<<<<
  *         del rows, cols
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_np); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 123, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_np); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 126, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_array); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 123, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_array); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 126, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = PyTuple_New(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 123, __pyx_L1_error)
+  __pyx_t_7 = PyTuple_New(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 126, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_INCREF(__pyx_v_cols);
   __Pyx_GIVEREF(__pyx_v_cols);
   PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_v_cols);
-  __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 123, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 126, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 123, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 126, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_int32); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 123, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_int32); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 126, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dtype, __pyx_t_6) < 0) __PYX_ERR(0, 123, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dtype, __pyx_t_6) < 0) __PYX_ERR(0, 126, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_7, __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 123, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_7, __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 126, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "wikidata2vec/link_graph.pyx":122
+  /* "wikidata2vec/link_graph.pyx":125
  * 
  *         matrix = coo_matrix((np.ones(len(rows), dtype=np.bool),
  *                              (np.array(rows, dtype=np.int32),             # <<<<<<<<<<<<<<
  *                               np.array(cols, dtype=np.int32))), dtype=np.bool)
  *         del rows, cols
  */
-  __pyx_t_5 = PyTuple_New(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 122, __pyx_L1_error)
+  __pyx_t_5 = PyTuple_New(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 125, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_GIVEREF(__pyx_t_8);
   PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_8);
@@ -5654,14 +5636,14 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
   __pyx_t_8 = 0;
   __pyx_t_6 = 0;
 
-  /* "wikidata2vec/link_graph.pyx":121
+  /* "wikidata2vec/link_graph.pyx":124
  *         cols = list(chain(*cols))
  * 
  *         matrix = coo_matrix((np.ones(len(rows), dtype=np.bool),             # <<<<<<<<<<<<<<
  *                              (np.array(rows, dtype=np.int32),
  *                               np.array(cols, dtype=np.int32))), dtype=np.bool)
  */
-  __pyx_t_6 = PyTuple_New(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 121, __pyx_L1_error)
+  __pyx_t_6 = PyTuple_New(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 124, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_GIVEREF(__pyx_t_3);
   PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_3);
@@ -5669,37 +5651,37 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
   PyTuple_SET_ITEM(__pyx_t_6, 1, __pyx_t_5);
   __pyx_t_3 = 0;
   __pyx_t_5 = 0;
-  __pyx_t_5 = PyTuple_New(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 121, __pyx_L1_error)
+  __pyx_t_5 = PyTuple_New(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 124, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_GIVEREF(__pyx_t_6);
   PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "wikidata2vec/link_graph.pyx":123
+  /* "wikidata2vec/link_graph.pyx":126
  *         matrix = coo_matrix((np.ones(len(rows), dtype=np.bool),
  *                              (np.array(rows, dtype=np.int32),
  *                               np.array(cols, dtype=np.int32))), dtype=np.bool)             # <<<<<<<<<<<<<<
  *         del rows, cols
  * 
  */
-  __pyx_t_6 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 123, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 126, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 123, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 126, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_bool); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 123, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_bool); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 126, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_dtype, __pyx_t_8) < 0) __PYX_ERR(0, 123, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_dtype, __pyx_t_8) < 0) __PYX_ERR(0, 126, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-  /* "wikidata2vec/link_graph.pyx":121
+  /* "wikidata2vec/link_graph.pyx":124
  *         cols = list(chain(*cols))
  * 
  *         matrix = coo_matrix((np.ones(len(rows), dtype=np.bool),             # <<<<<<<<<<<<<<
  *                              (np.array(rows, dtype=np.int32),
  *                               np.array(cols, dtype=np.int32))), dtype=np.bool)
  */
-  __pyx_t_8 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_5, __pyx_t_6); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 121, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_5, __pyx_t_6); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 124, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
@@ -5707,7 +5689,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
   __pyx_v_matrix = __pyx_t_8;
   __pyx_t_8 = 0;
 
-  /* "wikidata2vec/link_graph.pyx":124
+  /* "wikidata2vec/link_graph.pyx":127
  *                              (np.array(rows, dtype=np.int32),
  *                               np.array(cols, dtype=np.int32))), dtype=np.bool)
  *         del rows, cols             # <<<<<<<<<<<<<<
@@ -5719,14 +5701,14 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
   __Pyx_DECREF(__pyx_v_cols);
   __pyx_v_cols = NULL;
 
-  /* "wikidata2vec/link_graph.pyx":126
+  /* "wikidata2vec/link_graph.pyx":129
  *         del rows, cols
  * 
  *         matrix = matrix.tocsr()             # <<<<<<<<<<<<<<
  * 
  *         matrix.indices += dictionary.entity_offset
  */
-  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_matrix, __pyx_n_s_tocsr); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 126, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_matrix, __pyx_n_s_tocsr); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 129, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_6))) {
@@ -5740,78 +5722,78 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
   }
   __pyx_t_8 = (__pyx_t_5) ? __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_t_5) : __Pyx_PyObject_CallNoArg(__pyx_t_6);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 126, __pyx_L1_error)
+  if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 129, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __Pyx_DECREF_SET(__pyx_v_matrix, __pyx_t_8);
   __pyx_t_8 = 0;
 
-  /* "wikidata2vec/link_graph.pyx":128
+  /* "wikidata2vec/link_graph.pyx":131
  *         matrix = matrix.tocsr()
  * 
  *         matrix.indices += dictionary.entity_offset             # <<<<<<<<<<<<<<
  * 
  *         build_params = dict(dump_file=dump_db.dump_file,
  */
-  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_v_matrix, __pyx_n_s_indices); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 128, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_v_matrix, __pyx_n_s_indices); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 131, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
-  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_dictionary, __pyx_n_s_entity_offset); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 128, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_dictionary, __pyx_n_s_entity_offset); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 131, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_5 = PyNumber_InPlaceAdd(__pyx_t_8, __pyx_t_6); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 128, __pyx_L1_error)
+  __pyx_t_5 = PyNumber_InPlaceAdd(__pyx_t_8, __pyx_t_6); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 131, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_matrix, __pyx_n_s_indices, __pyx_t_5) < 0) __PYX_ERR(0, 128, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_matrix, __pyx_n_s_indices, __pyx_t_5) < 0) __PYX_ERR(0, 131, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "wikidata2vec/link_graph.pyx":130
+  /* "wikidata2vec/link_graph.pyx":133
  *         matrix.indices += dictionary.entity_offset
  * 
  *         build_params = dict(dump_file=dump_db.dump_file,             # <<<<<<<<<<<<<<
  *                             dump_db=dump_db.uuid,
  *                             dictionary=dictionary.uuid,
  */
-  __pyx_t_5 = __Pyx_PyDict_NewPresized(5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 130, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyDict_NewPresized(5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 133, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_dump_db, __pyx_n_s_dump_file); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 130, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_dump_db, __pyx_n_s_dump_file); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 133, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dump_file, __pyx_t_6) < 0) __PYX_ERR(0, 130, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dump_file, __pyx_t_6) < 0) __PYX_ERR(0, 133, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-  /* "wikidata2vec/link_graph.pyx":131
+  /* "wikidata2vec/link_graph.pyx":134
  * 
  *         build_params = dict(dump_file=dump_db.dump_file,
  *                             dump_db=dump_db.uuid,             # <<<<<<<<<<<<<<
  *                             dictionary=dictionary.uuid,
  *                             build_time=time.time() - start_time,
  */
-  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_dump_db, __pyx_n_s_uuid); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 131, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_dump_db, __pyx_n_s_uuid); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 134, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dump_db, __pyx_t_6) < 0) __PYX_ERR(0, 130, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dump_db, __pyx_t_6) < 0) __PYX_ERR(0, 133, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-  /* "wikidata2vec/link_graph.pyx":132
+  /* "wikidata2vec/link_graph.pyx":135
  *         build_params = dict(dump_file=dump_db.dump_file,
  *                             dump_db=dump_db.uuid,
  *                             dictionary=dictionary.uuid,             # <<<<<<<<<<<<<<
  *                             build_time=time.time() - start_time,
  *                             version=pkg_resources.get_distribution('wikipedia2vec').version)
  */
-  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_dictionary, __pyx_n_s_uuid); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 132, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_dictionary, __pyx_n_s_uuid); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 135, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dictionary, __pyx_t_6) < 0) __PYX_ERR(0, 130, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dictionary, __pyx_t_6) < 0) __PYX_ERR(0, 133, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-  /* "wikidata2vec/link_graph.pyx":133
+  /* "wikidata2vec/link_graph.pyx":136
  *                             dump_db=dump_db.uuid,
  *                             dictionary=dictionary.uuid,
  *                             build_time=time.time() - start_time,             # <<<<<<<<<<<<<<
  *                             version=pkg_resources.get_distribution('wikipedia2vec').version)
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_n_s_time); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 133, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_n_s_time); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 136, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_time); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 133, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_time); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 136, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   __pyx_t_8 = NULL;
@@ -5826,25 +5808,25 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
   }
   __pyx_t_6 = (__pyx_t_8) ? __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_8) : __Pyx_PyObject_CallNoArg(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-  if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 133, __pyx_L1_error)
+  if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 136, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyNumber_Subtract(__pyx_t_6, __pyx_v_start_time); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 133, __pyx_L1_error)
+  __pyx_t_1 = PyNumber_Subtract(__pyx_t_6, __pyx_v_start_time); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 136, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_build_time, __pyx_t_1) < 0) __PYX_ERR(0, 130, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_build_time, __pyx_t_1) < 0) __PYX_ERR(0, 133, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "wikidata2vec/link_graph.pyx":134
+  /* "wikidata2vec/link_graph.pyx":137
  *                             dictionary=dictionary.uuid,
  *                             build_time=time.time() - start_time,
  *                             version=pkg_resources.get_distribution('wikipedia2vec').version)             # <<<<<<<<<<<<<<
  * 
  *         uuid = six.text_type(uuid1().hex)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_pkg_resources); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 134, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_pkg_resources); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 137, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_get_distribution); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 134, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_get_distribution); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 137, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __pyx_t_6 = NULL;
@@ -5859,30 +5841,30 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
   }
   __pyx_t_1 = (__pyx_t_6) ? __Pyx_PyObject_Call2Args(__pyx_t_8, __pyx_t_6, __pyx_n_u_wikipedia2vec) : __Pyx_PyObject_CallOneArg(__pyx_t_8, __pyx_n_u_wikipedia2vec);
   __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 134, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 137, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_version); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 134, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_version); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 137, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_version, __pyx_t_8) < 0) __PYX_ERR(0, 130, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_version, __pyx_t_8) < 0) __PYX_ERR(0, 133, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   __pyx_v_build_params = ((PyObject*)__pyx_t_5);
   __pyx_t_5 = 0;
 
-  /* "wikidata2vec/link_graph.pyx":136
+  /* "wikidata2vec/link_graph.pyx":139
  *                             version=pkg_resources.get_distribution('wikipedia2vec').version)
  * 
  *         uuid = six.text_type(uuid1().hex)             # <<<<<<<<<<<<<<
  * 
  *         return LinkGraph(dictionary, matrix.indices, matrix.indptr, build_params, uuid)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_n_s_six); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 136, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_n_s_six); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 139, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_text_type); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 136, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_text_type); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 139, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_uuid1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 136, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_uuid1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 139, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_6))) {
@@ -5896,10 +5878,10 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
   }
   __pyx_t_8 = (__pyx_t_3) ? __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_t_3) : __Pyx_PyObject_CallNoArg(__pyx_t_6);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 136, __pyx_L1_error)
+  if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 139, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_hex); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 136, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_hex); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 139, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   __pyx_t_8 = NULL;
@@ -5915,13 +5897,13 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
   __pyx_t_5 = (__pyx_t_8) ? __Pyx_PyObject_Call2Args(__pyx_t_1, __pyx_t_8, __pyx_t_6) : __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_6);
   __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 136, __pyx_L1_error)
+  if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 139, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_uuid = __pyx_t_5;
   __pyx_t_5 = 0;
 
-  /* "wikidata2vec/link_graph.pyx":138
+  /* "wikidata2vec/link_graph.pyx":141
  *         uuid = six.text_type(uuid1().hex)
  * 
  *         return LinkGraph(dictionary, matrix.indices, matrix.indptr, build_params, uuid)             # <<<<<<<<<<<<<<
@@ -5929,11 +5911,11 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
  * 
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_matrix, __pyx_n_s_indices); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 138, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_matrix, __pyx_n_s_indices); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 141, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_matrix, __pyx_n_s_indptr); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 138, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_matrix, __pyx_n_s_indptr); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 141, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_6 = PyTuple_New(5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 138, __pyx_L1_error)
+  __pyx_t_6 = PyTuple_New(5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 141, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_INCREF(__pyx_v_dictionary);
   __Pyx_GIVEREF(__pyx_v_dictionary);
@@ -5950,14 +5932,14 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
   PyTuple_SET_ITEM(__pyx_t_6, 4, __pyx_v_uuid);
   __pyx_t_5 = 0;
   __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_12wikidata2vec_10link_graph_LinkGraph), __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 138, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_12wikidata2vec_10link_graph_LinkGraph), __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 141, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "wikidata2vec/link_graph.pyx":93
+  /* "wikidata2vec/link_graph.pyx":96
  * 
  *     @staticmethod
  *     def build(dump_db, dictionary, pool_size, chunk_size, progressbar=True):             # <<<<<<<<<<<<<<
@@ -5995,7 +5977,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_10build(PyObjec
   return __pyx_r;
 }
 
-/* "wikidata2vec/link_graph.pxd":10
+/* "wikidata2vec/link_graph.pxd":11
  * 
  * cdef class LinkGraph:
  *     cdef readonly unicode uuid             # <<<<<<<<<<<<<<
@@ -6032,7 +6014,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_4uuid___get__(s
   return __pyx_r;
 }
 
-/* "wikidata2vec/link_graph.pxd":11
+/* "wikidata2vec/link_graph.pxd":12
  * cdef class LinkGraph:
  *     cdef readonly unicode uuid
  *     cdef readonly dict build_params             # <<<<<<<<<<<<<<
@@ -6415,7 +6397,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_9LinkGraph_14__setstate_cy
   return __pyx_r;
 }
 
-/* "wikidata2vec/link_graph.pyx":145
+/* "wikidata2vec/link_graph.pyx":148
  * 
  * 
  * def init_worker(dump_db, dictionary_obj):             # <<<<<<<<<<<<<<
@@ -6458,11 +6440,11 @@ static PyObject *__pyx_pw_12wikidata2vec_10link_graph_1init_worker(PyObject *__p
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_dictionary_obj)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("init_worker", 1, 2, 2, 1); __PYX_ERR(0, 145, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("init_worker", 1, 2, 2, 1); __PYX_ERR(0, 148, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "init_worker") < 0)) __PYX_ERR(0, 145, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "init_worker") < 0)) __PYX_ERR(0, 148, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -6475,7 +6457,7 @@ static PyObject *__pyx_pw_12wikidata2vec_10link_graph_1init_worker(PyObject *__p
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("init_worker", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 145, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("init_worker", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 148, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("wikidata2vec.link_graph.init_worker", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -6499,14 +6481,14 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_init_worker(CYTHON_UNUSED 
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("init_worker", 0);
 
-  /* "wikidata2vec/link_graph.pyx":148
+  /* "wikidata2vec/link_graph.pyx":151
  *     global _dump_db, _dictionary
  * 
  *     _dump_db = dump_db             # <<<<<<<<<<<<<<
  *     _dictionary = Dictionary.load(dictionary_obj)
  * 
  */
-  if (!(likely(((__pyx_v_dump_db) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_dump_db, __pyx_ptype_12wikidata2vec_7dump_db_DumpDB))))) __PYX_ERR(0, 148, __pyx_L1_error)
+  if (!(likely(((__pyx_v_dump_db) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_dump_db, __pyx_ptype_12wikidata2vec_7dump_db_DumpDB))))) __PYX_ERR(0, 151, __pyx_L1_error)
   __pyx_t_1 = __pyx_v_dump_db;
   __Pyx_INCREF(__pyx_t_1);
   __Pyx_XGOTREF(((PyObject *)__pyx_v_12wikidata2vec_10link_graph__dump_db));
@@ -6514,14 +6496,14 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_init_worker(CYTHON_UNUSED 
   __Pyx_GIVEREF(__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "wikidata2vec/link_graph.pyx":149
+  /* "wikidata2vec/link_graph.pyx":152
  * 
  *     _dump_db = dump_db
  *     _dictionary = Dictionary.load(dictionary_obj)             # <<<<<<<<<<<<<<
  * 
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_12wikidata2vec_10dictionary_Dictionary), __pyx_n_s_load); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 149, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_12wikidata2vec_10dictionary_Dictionary), __pyx_n_s_load); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 152, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -6535,16 +6517,16 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_init_worker(CYTHON_UNUSED 
   }
   __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_v_dictionary_obj) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_dictionary_obj);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 149, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 152, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_12wikidata2vec_10dictionary_Dictionary))))) __PYX_ERR(0, 149, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_12wikidata2vec_10dictionary_Dictionary))))) __PYX_ERR(0, 152, __pyx_L1_error)
   __Pyx_XGOTREF(((PyObject *)__pyx_v_12wikidata2vec_10link_graph__dictionary));
   __Pyx_DECREF_SET(__pyx_v_12wikidata2vec_10link_graph__dictionary, ((struct __pyx_obj_12wikidata2vec_10dictionary_Dictionary *)__pyx_t_1));
   __Pyx_GIVEREF(__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "wikidata2vec/link_graph.pyx":145
+  /* "wikidata2vec/link_graph.pyx":148
  * 
  * 
  * def init_worker(dump_db, dictionary_obj):             # <<<<<<<<<<<<<<
@@ -6567,7 +6549,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_init_worker(CYTHON_UNUSED 
   return __pyx_r;
 }
 
-/* "wikidata2vec/link_graph.pyx":152
+/* "wikidata2vec/link_graph.pyx":155
  * 
  * 
  * def _process_page(unicode title, int32_t offset):             # <<<<<<<<<<<<<<
@@ -6610,11 +6592,11 @@ static PyObject *__pyx_pw_12wikidata2vec_10link_graph_3_process_page(PyObject *_
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_offset)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("_process_page", 1, 2, 2, 1); __PYX_ERR(0, 152, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("_process_page", 1, 2, 2, 1); __PYX_ERR(0, 155, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "_process_page") < 0)) __PYX_ERR(0, 152, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "_process_page") < 0)) __PYX_ERR(0, 155, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -6623,17 +6605,17 @@ static PyObject *__pyx_pw_12wikidata2vec_10link_graph_3_process_page(PyObject *_
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
     }
     __pyx_v_title = ((PyObject*)values[0]);
-    __pyx_v_offset = __Pyx_PyInt_As_int32_t(values[1]); if (unlikely((__pyx_v_offset == ((int32_t)-1)) && PyErr_Occurred())) __PYX_ERR(0, 152, __pyx_L3_error)
+    __pyx_v_offset = __Pyx_PyInt_As_int32_t(values[1]); if (unlikely((__pyx_v_offset == ((int32_t)-1)) && PyErr_Occurred())) __PYX_ERR(0, 155, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("_process_page", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 152, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("_process_page", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 155, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("wikidata2vec.link_graph._process_page", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_title), (&PyUnicode_Type), 1, "title", 1))) __PYX_ERR(0, 152, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_title), (&PyUnicode_Type), 1, "title", 1))) __PYX_ERR(0, 155, __pyx_L1_error)
   __pyx_r = __pyx_pf_12wikidata2vec_10link_graph_2_process_page(__pyx_self, __pyx_v_title, __pyx_v_offset);
 
   /* function exit code */
@@ -6665,16 +6647,16 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_2_process_page(CYTHON_UNUS
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("_process_page", 0);
 
-  /* "wikidata2vec/link_graph.pyx":158
+  /* "wikidata2vec/link_graph.pyx":161
  *     cdef WikiLink link
  * 
  *     page_index = _dictionary.get_entity_index(title)             # <<<<<<<<<<<<<<
  *     if page_index == -1:
  *         return None
  */
-  __pyx_v_page_index = ((struct __pyx_vtabstruct_12wikidata2vec_10dictionary_Dictionary *)__pyx_v_12wikidata2vec_10link_graph__dictionary->__pyx_vtab)->get_entity_index(__pyx_v_12wikidata2vec_10link_graph__dictionary, __pyx_v_title, 0, NULL);
+  __pyx_v_page_index = ((struct __pyx_vtabstruct_12wikidata2vec_10dictionary_Dictionary *)__pyx_v_12wikidata2vec_10link_graph__dictionary->__pyx_vtab)->get_entity_index(__pyx_v_12wikidata2vec_10link_graph__dictionary, __pyx_v_title, 0);
 
-  /* "wikidata2vec/link_graph.pyx":159
+  /* "wikidata2vec/link_graph.pyx":162
  * 
  *     page_index = _dictionary.get_entity_index(title)
  *     if page_index == -1:             # <<<<<<<<<<<<<<
@@ -6684,7 +6666,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_2_process_page(CYTHON_UNUS
   __pyx_t_1 = ((__pyx_v_page_index == -1L) != 0);
   if (__pyx_t_1) {
 
-    /* "wikidata2vec/link_graph.pyx":160
+    /* "wikidata2vec/link_graph.pyx":163
  *     page_index = _dictionary.get_entity_index(title)
  *     if page_index == -1:
  *         return None             # <<<<<<<<<<<<<<
@@ -6695,7 +6677,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_2_process_page(CYTHON_UNUS
     __pyx_r = Py_None; __Pyx_INCREF(Py_None);
     goto __pyx_L0;
 
-    /* "wikidata2vec/link_graph.pyx":159
+    /* "wikidata2vec/link_graph.pyx":162
  * 
  *     page_index = _dictionary.get_entity_index(title)
  *     if page_index == -1:             # <<<<<<<<<<<<<<
@@ -6704,7 +6686,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_2_process_page(CYTHON_UNUS
  */
   }
 
-  /* "wikidata2vec/link_graph.pyx":162
+  /* "wikidata2vec/link_graph.pyx":165
  *         return None
  * 
  *     page_index -= offset             # <<<<<<<<<<<<<<
@@ -6713,46 +6695,46 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_2_process_page(CYTHON_UNUS
  */
   __pyx_v_page_index = (__pyx_v_page_index - __pyx_v_offset);
 
-  /* "wikidata2vec/link_graph.pyx":164
+  /* "wikidata2vec/link_graph.pyx":167
  *     page_index -= offset
  * 
  *     dest_indices = []             # <<<<<<<<<<<<<<
  *     for paragraph in _dump_db.get_paragraphs(title):
  *         for link in paragraph.wiki_links:
  */
-  __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 164, __pyx_L1_error)
+  __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 167, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_v_dest_indices = ((PyObject*)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "wikidata2vec/link_graph.pyx":165
+  /* "wikidata2vec/link_graph.pyx":168
  * 
  *     dest_indices = []
  *     for paragraph in _dump_db.get_paragraphs(title):             # <<<<<<<<<<<<<<
  *         for link in paragraph.wiki_links:
  *             dest_index = _dictionary.get_entity_index(link.title)
  */
-  __pyx_t_2 = ((struct __pyx_vtabstruct_12wikidata2vec_7dump_db_DumpDB *)__pyx_v_12wikidata2vec_10link_graph__dump_db->__pyx_vtab)->get_paragraphs(__pyx_v_12wikidata2vec_10link_graph__dump_db, __pyx_v_title, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 165, __pyx_L1_error)
+  __pyx_t_2 = ((struct __pyx_vtabstruct_12wikidata2vec_7dump_db_DumpDB *)__pyx_v_12wikidata2vec_10link_graph__dump_db->__pyx_vtab)->get_paragraphs(__pyx_v_12wikidata2vec_10link_graph__dump_db, __pyx_v_title, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 168, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (unlikely(__pyx_t_2 == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
-    __PYX_ERR(0, 165, __pyx_L1_error)
+    __PYX_ERR(0, 168, __pyx_L1_error)
   }
   __pyx_t_3 = __pyx_t_2; __Pyx_INCREF(__pyx_t_3); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   for (;;) {
     if (__pyx_t_4 >= PyList_GET_SIZE(__pyx_t_3)) break;
     #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-    __pyx_t_2 = PyList_GET_ITEM(__pyx_t_3, __pyx_t_4); __Pyx_INCREF(__pyx_t_2); __pyx_t_4++; if (unlikely(0 < 0)) __PYX_ERR(0, 165, __pyx_L1_error)
+    __pyx_t_2 = PyList_GET_ITEM(__pyx_t_3, __pyx_t_4); __Pyx_INCREF(__pyx_t_2); __pyx_t_4++; if (unlikely(0 < 0)) __PYX_ERR(0, 168, __pyx_L1_error)
     #else
-    __pyx_t_2 = PySequence_ITEM(__pyx_t_3, __pyx_t_4); __pyx_t_4++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 165, __pyx_L1_error)
+    __pyx_t_2 = PySequence_ITEM(__pyx_t_3, __pyx_t_4); __pyx_t_4++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 168, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     #endif
-    if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_12wikidata2vec_7dump_db_Paragraph))))) __PYX_ERR(0, 165, __pyx_L1_error)
+    if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_12wikidata2vec_7dump_db_Paragraph))))) __PYX_ERR(0, 168, __pyx_L1_error)
     __Pyx_XDECREF_SET(__pyx_v_paragraph, ((struct __pyx_obj_12wikidata2vec_7dump_db_Paragraph *)__pyx_t_2));
     __pyx_t_2 = 0;
 
-    /* "wikidata2vec/link_graph.pyx":166
+    /* "wikidata2vec/link_graph.pyx":169
  *     dest_indices = []
  *     for paragraph in _dump_db.get_paragraphs(title):
  *         for link in paragraph.wiki_links:             # <<<<<<<<<<<<<<
@@ -6761,22 +6743,22 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_2_process_page(CYTHON_UNUS
  */
     if (unlikely(__pyx_v_paragraph->wiki_links == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
-      __PYX_ERR(0, 166, __pyx_L1_error)
+      __PYX_ERR(0, 169, __pyx_L1_error)
     }
     __pyx_t_2 = __pyx_v_paragraph->wiki_links; __Pyx_INCREF(__pyx_t_2); __pyx_t_5 = 0;
     for (;;) {
       if (__pyx_t_5 >= PyList_GET_SIZE(__pyx_t_2)) break;
       #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-      __pyx_t_6 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_5); __Pyx_INCREF(__pyx_t_6); __pyx_t_5++; if (unlikely(0 < 0)) __PYX_ERR(0, 166, __pyx_L1_error)
+      __pyx_t_6 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_5); __Pyx_INCREF(__pyx_t_6); __pyx_t_5++; if (unlikely(0 < 0)) __PYX_ERR(0, 169, __pyx_L1_error)
       #else
-      __pyx_t_6 = PySequence_ITEM(__pyx_t_2, __pyx_t_5); __pyx_t_5++; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 166, __pyx_L1_error)
+      __pyx_t_6 = PySequence_ITEM(__pyx_t_2, __pyx_t_5); __pyx_t_5++; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 169, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
       #endif
-      if (!(likely(((__pyx_t_6) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_6, __pyx_ptype_12wikidata2vec_7dump_db_WikiLink))))) __PYX_ERR(0, 166, __pyx_L1_error)
+      if (!(likely(((__pyx_t_6) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_6, __pyx_ptype_12wikidata2vec_7dump_db_WikiLink))))) __PYX_ERR(0, 169, __pyx_L1_error)
       __Pyx_XDECREF_SET(__pyx_v_link, ((struct __pyx_obj_12wikidata2vec_7dump_db_WikiLink *)__pyx_t_6));
       __pyx_t_6 = 0;
 
-      /* "wikidata2vec/link_graph.pyx":167
+      /* "wikidata2vec/link_graph.pyx":170
  *     for paragraph in _dump_db.get_paragraphs(title):
  *         for link in paragraph.wiki_links:
  *             dest_index = _dictionary.get_entity_index(link.title)             # <<<<<<<<<<<<<<
@@ -6785,10 +6767,10 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_2_process_page(CYTHON_UNUS
  */
       __pyx_t_6 = __pyx_v_link->title;
       __Pyx_INCREF(__pyx_t_6);
-      __pyx_v_dest_index = ((struct __pyx_vtabstruct_12wikidata2vec_10dictionary_Dictionary *)__pyx_v_12wikidata2vec_10link_graph__dictionary->__pyx_vtab)->get_entity_index(__pyx_v_12wikidata2vec_10link_graph__dictionary, ((PyObject*)__pyx_t_6), 0, NULL);
+      __pyx_v_dest_index = ((struct __pyx_vtabstruct_12wikidata2vec_10dictionary_Dictionary *)__pyx_v_12wikidata2vec_10link_graph__dictionary->__pyx_vtab)->get_entity_index(__pyx_v_12wikidata2vec_10link_graph__dictionary, ((PyObject*)__pyx_t_6), 0);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-      /* "wikidata2vec/link_graph.pyx":168
+      /* "wikidata2vec/link_graph.pyx":171
  *         for link in paragraph.wiki_links:
  *             dest_index = _dictionary.get_entity_index(link.title)
  *             if dest_index != -1:             # <<<<<<<<<<<<<<
@@ -6798,19 +6780,19 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_2_process_page(CYTHON_UNUS
       __pyx_t_1 = ((__pyx_v_dest_index != -1L) != 0);
       if (__pyx_t_1) {
 
-        /* "wikidata2vec/link_graph.pyx":169
+        /* "wikidata2vec/link_graph.pyx":172
  *             dest_index = _dictionary.get_entity_index(link.title)
  *             if dest_index != -1:
  *                 dest_indices.append(dest_index - offset)             # <<<<<<<<<<<<<<
  * 
  *     return ([page_index] * len(dest_indices), dest_indices)
  */
-        __pyx_t_6 = __Pyx_PyInt_From_int32_t((__pyx_v_dest_index - __pyx_v_offset)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 169, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_PyInt_From_int32_t((__pyx_v_dest_index - __pyx_v_offset)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 172, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
-        __pyx_t_7 = __Pyx_PyList_Append(__pyx_v_dest_indices, __pyx_t_6); if (unlikely(__pyx_t_7 == ((int)-1))) __PYX_ERR(0, 169, __pyx_L1_error)
+        __pyx_t_7 = __Pyx_PyList_Append(__pyx_v_dest_indices, __pyx_t_6); if (unlikely(__pyx_t_7 == ((int)-1))) __PYX_ERR(0, 172, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-        /* "wikidata2vec/link_graph.pyx":168
+        /* "wikidata2vec/link_graph.pyx":171
  *         for link in paragraph.wiki_links:
  *             dest_index = _dictionary.get_entity_index(link.title)
  *             if dest_index != -1:             # <<<<<<<<<<<<<<
@@ -6819,7 +6801,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_2_process_page(CYTHON_UNUS
  */
       }
 
-      /* "wikidata2vec/link_graph.pyx":166
+      /* "wikidata2vec/link_graph.pyx":169
  *     dest_indices = []
  *     for paragraph in _dump_db.get_paragraphs(title):
  *         for link in paragraph.wiki_links:             # <<<<<<<<<<<<<<
@@ -6829,7 +6811,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_2_process_page(CYTHON_UNUS
     }
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-    /* "wikidata2vec/link_graph.pyx":165
+    /* "wikidata2vec/link_graph.pyx":168
  * 
  *     dest_indices = []
  *     for paragraph in _dump_db.get_paragraphs(title):             # <<<<<<<<<<<<<<
@@ -6839,16 +6821,16 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_2_process_page(CYTHON_UNUS
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "wikidata2vec/link_graph.pyx":171
+  /* "wikidata2vec/link_graph.pyx":174
  *                 dest_indices.append(dest_index - offset)
  * 
  *     return ([page_index] * len(dest_indices), dest_indices)             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_3 = __Pyx_PyInt_From_int32_t(__pyx_v_page_index); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 171, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_From_int32_t(__pyx_v_page_index); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = PyList_GET_SIZE(__pyx_v_dest_indices); if (unlikely(__pyx_t_4 == ((Py_ssize_t)-1))) __PYX_ERR(0, 171, __pyx_L1_error)
-  __pyx_t_2 = PyList_New(1 * ((__pyx_t_4<0) ? 0:__pyx_t_4)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 171, __pyx_L1_error)
+  __pyx_t_4 = PyList_GET_SIZE(__pyx_v_dest_indices); if (unlikely(__pyx_t_4 == ((Py_ssize_t)-1))) __PYX_ERR(0, 174, __pyx_L1_error)
+  __pyx_t_2 = PyList_New(1 * ((__pyx_t_4<0) ? 0:__pyx_t_4)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   { Py_ssize_t __pyx_temp;
     for (__pyx_temp=0; __pyx_temp < __pyx_t_4; __pyx_temp++) {
@@ -6858,7 +6840,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_2_process_page(CYTHON_UNUS
     }
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 171, __pyx_L1_error)
+  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_2);
   PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_2);
@@ -6870,7 +6852,7 @@ static PyObject *__pyx_pf_12wikidata2vec_10link_graph_2_process_page(CYTHON_UNUS
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "wikidata2vec/link_graph.pyx":152
+  /* "wikidata2vec/link_graph.pyx":155
  * 
  * 
  * def _process_page(unicode title, int32_t offset):             # <<<<<<<<<<<<<<
@@ -23851,6 +23833,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_id, __pyx_k_id, sizeof(__pyx_k_id), 0, 0, 1, 1},
   {&__pyx_n_s_imap_unordered, __pyx_k_imap_unordered, sizeof(__pyx_k_imap_unordered), 0, 0, 1, 1},
   {&__pyx_n_s_import, __pyx_k_import, sizeof(__pyx_k_import), 0, 0, 1, 1},
+  {&__pyx_n_s_index, __pyx_k_index, sizeof(__pyx_k_index), 0, 0, 1, 1},
   {&__pyx_n_s_indices, __pyx_k_indices, sizeof(__pyx_k_indices), 0, 0, 1, 1},
   {&__pyx_n_u_indices, __pyx_k_indices, sizeof(__pyx_k_indices), 0, 1, 0, 1},
   {&__pyx_n_s_indptr, __pyx_k_indptr, sizeof(__pyx_k_indptr), 0, 0, 1, 1},
@@ -23963,8 +23946,8 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, 0, 0, 0, 0, 0, 0}
 };
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_staticmethod = __Pyx_GetBuiltinName(__pyx_n_s_staticmethod); if (!__pyx_builtin_staticmethod) __PYX_ERR(0, 73, __pyx_L1_error)
-  __pyx_builtin_RuntimeError = __Pyx_GetBuiltinName(__pyx_n_s_RuntimeError); if (!__pyx_builtin_RuntimeError) __PYX_ERR(0, 82, __pyx_L1_error)
+  __pyx_builtin_staticmethod = __Pyx_GetBuiltinName(__pyx_n_s_staticmethod); if (!__pyx_builtin_staticmethod) __PYX_ERR(0, 76, __pyx_L1_error)
+  __pyx_builtin_RuntimeError = __Pyx_GetBuiltinName(__pyx_n_s_RuntimeError); if (!__pyx_builtin_RuntimeError) __PYX_ERR(0, 85, __pyx_L1_error)
   __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(2, 272, __pyx_L1_error)
   __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(2, 285, __pyx_L1_error)
   __pyx_builtin_ImportError = __Pyx_GetBuiltinName(__pyx_n_s_ImportError); if (!__pyx_builtin_ImportError) __PYX_ERR(2, 1037, __pyx_L1_error)
@@ -23983,25 +23966,25 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "wikidata2vec/link_graph.pyx":82
+  /* "wikidata2vec/link_graph.pyx":85
  * 
  *         if target['build_params']['dictionary'] != dictionary.uuid:
  *             raise RuntimeError('The specified dictionary is different from the one used to build this link graph')             # <<<<<<<<<<<<<<
  * 
  *         indices = target.pop('indices')
  */
-  __pyx_tuple__2 = PyTuple_Pack(1, __pyx_kp_u_The_specified_dictionary_is_diff); if (unlikely(!__pyx_tuple__2)) __PYX_ERR(0, 82, __pyx_L1_error)
+  __pyx_tuple__2 = PyTuple_Pack(1, __pyx_kp_u_The_specified_dictionary_is_diff); if (unlikely(!__pyx_tuple__2)) __PYX_ERR(0, 85, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__2);
   __Pyx_GIVEREF(__pyx_tuple__2);
 
-  /* "wikidata2vec/link_graph.pyx":103
+  /* "wikidata2vec/link_graph.pyx":106
  *             cols = []
  * 
  *             with tqdm(total=dump_db.page_size(), mininterval=0.5, disable=not progressbar) as bar:             # <<<<<<<<<<<<<<
  *                 f = partial(_process_page, offset=dictionary.entity_offset)
  * 
  */
-  __pyx_tuple__3 = PyTuple_Pack(3, Py_None, Py_None, Py_None); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 103, __pyx_L1_error)
+  __pyx_tuple__3 = PyTuple_Pack(3, Py_None, Py_None, Py_None); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 106, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__3);
   __Pyx_GIVEREF(__pyx_tuple__3);
 
@@ -24274,53 +24257,53 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__28);
   __Pyx_GIVEREF(__pyx_tuple__28);
 
-  /* "wikidata2vec/link_graph.pyx":74
+  /* "wikidata2vec/link_graph.pyx":77
  * 
  *     @staticmethod
  *     def load(target, dictionary, bint mmap=True):             # <<<<<<<<<<<<<<
  *         if not isinstance(target, dict):
  *             if mmap:
  */
-  __pyx_tuple__30 = PyTuple_Pack(5, __pyx_n_s_target, __pyx_n_s_dictionary, __pyx_n_s_mmap, __pyx_n_s_indices, __pyx_n_s_indptr); if (unlikely(!__pyx_tuple__30)) __PYX_ERR(0, 74, __pyx_L1_error)
+  __pyx_tuple__30 = PyTuple_Pack(5, __pyx_n_s_target, __pyx_n_s_dictionary, __pyx_n_s_mmap, __pyx_n_s_indices, __pyx_n_s_indptr); if (unlikely(!__pyx_tuple__30)) __PYX_ERR(0, 77, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__30);
   __Pyx_GIVEREF(__pyx_tuple__30);
-  __pyx_codeobj__31 = (PyObject*)__Pyx_PyCode_New(3, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__30, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_wikidata2vec_link_graph_pyx, __pyx_n_s_load, 74, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__31)) __PYX_ERR(0, 74, __pyx_L1_error)
+  __pyx_codeobj__31 = (PyObject*)__Pyx_PyCode_New(3, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__30, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_wikidata2vec_link_graph_pyx, __pyx_n_s_load, 77, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__31)) __PYX_ERR(0, 77, __pyx_L1_error)
 
-  /* "wikidata2vec/link_graph.pyx":93
+  /* "wikidata2vec/link_graph.pyx":96
  * 
  *     @staticmethod
  *     def build(dump_db, dictionary, pool_size, chunk_size, progressbar=True):             # <<<<<<<<<<<<<<
  *         start_time = time.time()
  * 
  */
-  __pyx_tuple__32 = PyTuple_Pack(17, __pyx_n_s_dump_db, __pyx_n_s_dictionary, __pyx_n_s_pool_size, __pyx_n_s_chunk_size, __pyx_n_s_progressbar, __pyx_n_s_start_time, __pyx_n_s_pool, __pyx_n_s_rows, __pyx_n_s_cols, __pyx_n_s_bar, __pyx_n_s_f, __pyx_n_s_ret, __pyx_n_s_page_indices, __pyx_n_s_dest_indices, __pyx_n_s_matrix, __pyx_n_s_build_params, __pyx_n_s_uuid); if (unlikely(!__pyx_tuple__32)) __PYX_ERR(0, 93, __pyx_L1_error)
+  __pyx_tuple__32 = PyTuple_Pack(17, __pyx_n_s_dump_db, __pyx_n_s_dictionary, __pyx_n_s_pool_size, __pyx_n_s_chunk_size, __pyx_n_s_progressbar, __pyx_n_s_start_time, __pyx_n_s_pool, __pyx_n_s_rows, __pyx_n_s_cols, __pyx_n_s_bar, __pyx_n_s_f, __pyx_n_s_ret, __pyx_n_s_page_indices, __pyx_n_s_dest_indices, __pyx_n_s_matrix, __pyx_n_s_build_params, __pyx_n_s_uuid); if (unlikely(!__pyx_tuple__32)) __PYX_ERR(0, 96, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__32);
   __Pyx_GIVEREF(__pyx_tuple__32);
-  __pyx_codeobj__33 = (PyObject*)__Pyx_PyCode_New(5, 0, 17, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__32, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_wikidata2vec_link_graph_pyx, __pyx_n_s_build, 93, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__33)) __PYX_ERR(0, 93, __pyx_L1_error)
+  __pyx_codeobj__33 = (PyObject*)__Pyx_PyCode_New(5, 0, 17, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__32, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_wikidata2vec_link_graph_pyx, __pyx_n_s_build, 96, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__33)) __PYX_ERR(0, 96, __pyx_L1_error)
 
-  /* "wikidata2vec/link_graph.pyx":145
+  /* "wikidata2vec/link_graph.pyx":148
  * 
  * 
  * def init_worker(dump_db, dictionary_obj):             # <<<<<<<<<<<<<<
  *     global _dump_db, _dictionary
  * 
  */
-  __pyx_tuple__34 = PyTuple_Pack(2, __pyx_n_s_dump_db, __pyx_n_s_dictionary_obj); if (unlikely(!__pyx_tuple__34)) __PYX_ERR(0, 145, __pyx_L1_error)
+  __pyx_tuple__34 = PyTuple_Pack(2, __pyx_n_s_dump_db, __pyx_n_s_dictionary_obj); if (unlikely(!__pyx_tuple__34)) __PYX_ERR(0, 148, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__34);
   __Pyx_GIVEREF(__pyx_tuple__34);
-  __pyx_codeobj__35 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__34, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_wikidata2vec_link_graph_pyx, __pyx_n_s_init_worker, 145, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__35)) __PYX_ERR(0, 145, __pyx_L1_error)
+  __pyx_codeobj__35 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__34, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_wikidata2vec_link_graph_pyx, __pyx_n_s_init_worker, 148, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__35)) __PYX_ERR(0, 148, __pyx_L1_error)
 
-  /* "wikidata2vec/link_graph.pyx":152
+  /* "wikidata2vec/link_graph.pyx":155
  * 
  * 
  * def _process_page(unicode title, int32_t offset):             # <<<<<<<<<<<<<<
  *     cdef int32_t page_index, dest_index
  *     cdef list dest_indices
  */
-  __pyx_tuple__36 = PyTuple_Pack(7, __pyx_n_s_title, __pyx_n_s_offset, __pyx_n_s_page_index, __pyx_n_s_dest_index, __pyx_n_s_dest_indices, __pyx_n_s_paragraph, __pyx_n_s_link); if (unlikely(!__pyx_tuple__36)) __PYX_ERR(0, 152, __pyx_L1_error)
+  __pyx_tuple__36 = PyTuple_Pack(7, __pyx_n_s_title, __pyx_n_s_offset, __pyx_n_s_page_index, __pyx_n_s_dest_index, __pyx_n_s_dest_indices, __pyx_n_s_paragraph, __pyx_n_s_link); if (unlikely(!__pyx_tuple__36)) __PYX_ERR(0, 155, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__36);
   __Pyx_GIVEREF(__pyx_tuple__36);
-  __pyx_codeobj__37 = (PyObject*)__Pyx_PyCode_New(2, 0, 7, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__36, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_wikidata2vec_link_graph_pyx, __pyx_n_s_process_page, 152, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__37)) __PYX_ERR(0, 152, __pyx_L1_error)
+  __pyx_codeobj__37 = (PyObject*)__Pyx_PyCode_New(2, 0, 7, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__36, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_wikidata2vec_link_graph_pyx, __pyx_n_s_process_page, 155, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__37)) __PYX_ERR(0, 155, __pyx_L1_error)
 
   /* "(tree fragment)":1
  * def __pyx_unpickle_LinkGraph(__pyx_type, long __pyx_checksum, __pyx_state):             # <<<<<<<<<<<<<<
@@ -24463,18 +24446,18 @@ static int __Pyx_modinit_type_init_code(void) {
   __Pyx_RefNannySetupContext("__Pyx_modinit_type_init_code", 0);
   /*--- Type init code ---*/
   __pyx_vtabptr_12wikidata2vec_10link_graph_LinkGraph = &__pyx_vtable_12wikidata2vec_10link_graph_LinkGraph;
-  __pyx_vtable_12wikidata2vec_10link_graph_LinkGraph.neighbors = (PyObject *(*)(struct __pyx_obj_12wikidata2vec_10link_graph_LinkGraph *, struct __pyx_obj_12wikidata2vec_10dictionary_Entity *, int __pyx_skip_dispatch))__pyx_f_12wikidata2vec_10link_graph_9LinkGraph_neighbors;
+  __pyx_vtable_12wikidata2vec_10link_graph_LinkGraph.neighbors = (PyObject *(*)(struct __pyx_obj_12wikidata2vec_10link_graph_LinkGraph *, struct __pyx_obj_12wikidata2vec_7dump_db_Entity *, int __pyx_skip_dispatch))__pyx_f_12wikidata2vec_10link_graph_9LinkGraph_neighbors;
   __pyx_vtable_12wikidata2vec_10link_graph_LinkGraph.neighbor_indices = (__Pyx_memviewslice (*)(struct __pyx_obj_12wikidata2vec_10link_graph_LinkGraph *, int32_t))__pyx_f_12wikidata2vec_10link_graph_9LinkGraph_neighbor_indices;
-  if (PyType_Ready(&__pyx_type_12wikidata2vec_10link_graph_LinkGraph) < 0) __PYX_ERR(0, 29, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_12wikidata2vec_10link_graph_LinkGraph) < 0) __PYX_ERR(0, 32, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_12wikidata2vec_10link_graph_LinkGraph.tp_print = 0;
   #endif
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_12wikidata2vec_10link_graph_LinkGraph.tp_dictoffset && __pyx_type_12wikidata2vec_10link_graph_LinkGraph.tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_type_12wikidata2vec_10link_graph_LinkGraph.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (__Pyx_SetVtable(__pyx_type_12wikidata2vec_10link_graph_LinkGraph.tp_dict, __pyx_vtabptr_12wikidata2vec_10link_graph_LinkGraph) < 0) __PYX_ERR(0, 29, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_LinkGraph, (PyObject *)&__pyx_type_12wikidata2vec_10link_graph_LinkGraph) < 0) __PYX_ERR(0, 29, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_12wikidata2vec_10link_graph_LinkGraph) < 0) __PYX_ERR(0, 29, __pyx_L1_error)
+  if (__Pyx_SetVtable(__pyx_type_12wikidata2vec_10link_graph_LinkGraph.tp_dict, __pyx_vtabptr_12wikidata2vec_10link_graph_LinkGraph) < 0) __PYX_ERR(0, 32, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_LinkGraph, (PyObject *)&__pyx_type_12wikidata2vec_10link_graph_LinkGraph) < 0) __PYX_ERR(0, 32, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_12wikidata2vec_10link_graph_LinkGraph) < 0) __PYX_ERR(0, 32, __pyx_L1_error)
   __pyx_ptype_12wikidata2vec_10link_graph_LinkGraph = &__pyx_type_12wikidata2vec_10link_graph_LinkGraph;
   __pyx_vtabptr_array = &__pyx_vtable_array;
   __pyx_vtable_array.get_memview = (PyObject *(*)(struct __pyx_array_obj *))__pyx_array_get_memview;
@@ -24572,8 +24555,6 @@ static int __Pyx_modinit_type_import_code(void) {
    if (!__pyx_ptype_12wikidata2vec_10dictionary_Item) __PYX_ERR(4, 8, __pyx_L1_error)
   __pyx_ptype_12wikidata2vec_10dictionary_Word = __Pyx_ImportType(__pyx_t_1, "wikidata2vec.dictionary", "Word", sizeof(struct __pyx_obj_12wikidata2vec_10dictionary_Word), __Pyx_ImportType_CheckSize_Warn);
    if (!__pyx_ptype_12wikidata2vec_10dictionary_Word) __PYX_ERR(4, 14, __pyx_L1_error)
-  __pyx_ptype_12wikidata2vec_10dictionary_Entity = __Pyx_ImportType(__pyx_t_1, "wikidata2vec.dictionary", "Entity", sizeof(struct __pyx_obj_12wikidata2vec_10dictionary_Entity), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_12wikidata2vec_10dictionary_Entity) __PYX_ERR(4, 18, __pyx_L1_error)
   __pyx_ptype_12wikidata2vec_10dictionary_Dictionary = __Pyx_ImportType(__pyx_t_1, "wikidata2vec.dictionary", "Dictionary", sizeof(struct __pyx_obj_12wikidata2vec_10dictionary_Dictionary), __Pyx_ImportType_CheckSize_Warn);
    if (!__pyx_ptype_12wikidata2vec_10dictionary_Dictionary) __PYX_ERR(4, 22, __pyx_L1_error)
   __pyx_vtabptr_12wikidata2vec_10dictionary_Dictionary = (struct __pyx_vtabstruct_12wikidata2vec_10dictionary_Dictionary*)__Pyx_GetVtable(__pyx_ptype_12wikidata2vec_10dictionary_Dictionary->tp_dict); if (unlikely(!__pyx_vtabptr_12wikidata2vec_10dictionary_Dictionary)) __PYX_ERR(4, 22, __pyx_L1_error)
@@ -24584,11 +24565,11 @@ static int __Pyx_modinit_type_import_code(void) {
    if (!__pyx_ptype_12wikidata2vec_7dump_db_DumpDB) __PYX_ERR(5, 6, __pyx_L1_error)
   __pyx_vtabptr_12wikidata2vec_7dump_db_DumpDB = (struct __pyx_vtabstruct_12wikidata2vec_7dump_db_DumpDB*)__Pyx_GetVtable(__pyx_ptype_12wikidata2vec_7dump_db_DumpDB->tp_dict); if (unlikely(!__pyx_vtabptr_12wikidata2vec_7dump_db_DumpDB)) __PYX_ERR(5, 6, __pyx_L1_error)
   __pyx_ptype_12wikidata2vec_7dump_db_Paragraph = __Pyx_ImportType(__pyx_t_1, "wikidata2vec.dump_db", "Paragraph", sizeof(struct __pyx_obj_12wikidata2vec_7dump_db_Paragraph), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_12wikidata2vec_7dump_db_Paragraph) __PYX_ERR(5, 19, __pyx_L1_error)
+   if (!__pyx_ptype_12wikidata2vec_7dump_db_Paragraph) __PYX_ERR(5, 24, __pyx_L1_error)
   __pyx_ptype_12wikidata2vec_7dump_db_WikiLink = __Pyx_ImportType(__pyx_t_1, "wikidata2vec.dump_db", "WikiLink", sizeof(struct __pyx_obj_12wikidata2vec_7dump_db_WikiLink), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_12wikidata2vec_7dump_db_WikiLink) __PYX_ERR(5, 25, __pyx_L1_error)
+   if (!__pyx_ptype_12wikidata2vec_7dump_db_WikiLink) __PYX_ERR(5, 30, __pyx_L1_error)
   __pyx_ptype_12wikidata2vec_7dump_db_Entity = __Pyx_ImportType(__pyx_t_1, "wikidata2vec.dump_db", "Entity", sizeof(struct __pyx_obj_12wikidata2vec_7dump_db_Entity), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_12wikidata2vec_7dump_db_Entity) __PYX_ERR(5, 32, __pyx_L1_error)
+   if (!__pyx_ptype_12wikidata2vec_7dump_db_Entity) __PYX_ERR(5, 37, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_RefNannyFinishContext();
   return 0;
@@ -25052,7 +25033,7 @@ if (!__Pyx_RefNanny) {
  * from tqdm import tqdm
  * from uuid import uuid1             # <<<<<<<<<<<<<<
  * 
- * from .dictionary cimport Dictionary, Entity
+ * from .dictionary cimport Dictionary#, Entity
  */
   __pyx_t_2 = PyList_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 21, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -25068,86 +25049,86 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "wikidata2vec/link_graph.pyx":26
+  /* "wikidata2vec/link_graph.pyx":29
  * from .dump_db cimport DumpDB, Paragraph, WikiLink
  * 
  * logger = logging.getLogger(__name__)             # <<<<<<<<<<<<<<
  * 
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_logging); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 26, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_logging); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 29, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_getLogger); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 26, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_getLogger); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 29, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_name_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 26, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_name_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 29, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 26, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 29, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_logger, __pyx_t_3) < 0) __PYX_ERR(0, 26, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_logger, __pyx_t_3) < 0) __PYX_ERR(0, 29, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "wikidata2vec/link_graph.pyx":74
+  /* "wikidata2vec/link_graph.pyx":77
  * 
  *     @staticmethod
  *     def load(target, dictionary, bint mmap=True):             # <<<<<<<<<<<<<<
  *         if not isinstance(target, dict):
  *             if mmap:
  */
-  __pyx_t_3 = PyCFunction_NewEx(&__pyx_mdef_12wikidata2vec_10link_graph_9LinkGraph_9load, NULL, __pyx_n_s_wikidata2vec_link_graph); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 74, __pyx_L1_error)
+  __pyx_t_3 = PyCFunction_NewEx(&__pyx_mdef_12wikidata2vec_10link_graph_9LinkGraph_9load, NULL, __pyx_n_s_wikidata2vec_link_graph); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 77, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_12wikidata2vec_10link_graph_LinkGraph->tp_dict, __pyx_n_s_load, __pyx_t_3) < 0) __PYX_ERR(0, 74, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_12wikidata2vec_10link_graph_LinkGraph->tp_dict, __pyx_n_s_load, __pyx_t_3) < 0) __PYX_ERR(0, 77, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   PyType_Modified(__pyx_ptype_12wikidata2vec_10link_graph_LinkGraph);
 
-  /* "wikidata2vec/link_graph.pyx":73
+  /* "wikidata2vec/link_graph.pyx":76
  *         joblib.dump(self.serialize(), out_file)
  * 
  *     @staticmethod             # <<<<<<<<<<<<<<
  *     def load(target, dictionary, bint mmap=True):
  *         if not isinstance(target, dict):
  */
-  __Pyx_GetNameInClass(__pyx_t_3, (PyObject *)__pyx_ptype_12wikidata2vec_10link_graph_LinkGraph, __pyx_n_s_load); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 74, __pyx_L1_error)
+  __Pyx_GetNameInClass(__pyx_t_3, (PyObject *)__pyx_ptype_12wikidata2vec_10link_graph_LinkGraph, __pyx_n_s_load); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 77, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_builtin_staticmethod, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 73, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_builtin_staticmethod, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 76, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_12wikidata2vec_10link_graph_LinkGraph->tp_dict, __pyx_n_s_load, __pyx_t_1) < 0) __PYX_ERR(0, 74, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_12wikidata2vec_10link_graph_LinkGraph->tp_dict, __pyx_n_s_load, __pyx_t_1) < 0) __PYX_ERR(0, 77, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   PyType_Modified(__pyx_ptype_12wikidata2vec_10link_graph_LinkGraph);
 
-  /* "wikidata2vec/link_graph.pyx":93
+  /* "wikidata2vec/link_graph.pyx":96
  * 
  *     @staticmethod
  *     def build(dump_db, dictionary, pool_size, chunk_size, progressbar=True):             # <<<<<<<<<<<<<<
  *         start_time = time.time()
  * 
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_12wikidata2vec_10link_graph_9LinkGraph_11build, NULL, __pyx_n_s_wikidata2vec_link_graph); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 93, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_12wikidata2vec_10link_graph_9LinkGraph_11build, NULL, __pyx_n_s_wikidata2vec_link_graph); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 96, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_12wikidata2vec_10link_graph_LinkGraph->tp_dict, __pyx_n_s_build, __pyx_t_1) < 0) __PYX_ERR(0, 93, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_12wikidata2vec_10link_graph_LinkGraph->tp_dict, __pyx_n_s_build, __pyx_t_1) < 0) __PYX_ERR(0, 96, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   PyType_Modified(__pyx_ptype_12wikidata2vec_10link_graph_LinkGraph);
 
-  /* "wikidata2vec/link_graph.pyx":92
+  /* "wikidata2vec/link_graph.pyx":95
  *         return LinkGraph(dictionary, indices, indptr, **target)
  * 
  *     @staticmethod             # <<<<<<<<<<<<<<
  *     def build(dump_db, dictionary, pool_size, chunk_size, progressbar=True):
  *         start_time = time.time()
  */
-  __Pyx_GetNameInClass(__pyx_t_1, (PyObject *)__pyx_ptype_12wikidata2vec_10link_graph_LinkGraph, __pyx_n_s_build); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 93, __pyx_L1_error)
+  __Pyx_GetNameInClass(__pyx_t_1, (PyObject *)__pyx_ptype_12wikidata2vec_10link_graph_LinkGraph, __pyx_n_s_build); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 96, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_builtin_staticmethod, __pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 92, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_builtin_staticmethod, __pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 95, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_12wikidata2vec_10link_graph_LinkGraph->tp_dict, __pyx_n_s_build, __pyx_t_3) < 0) __PYX_ERR(0, 93, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_12wikidata2vec_10link_graph_LinkGraph->tp_dict, __pyx_n_s_build, __pyx_t_3) < 0) __PYX_ERR(0, 96, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   PyType_Modified(__pyx_ptype_12wikidata2vec_10link_graph_LinkGraph);
 
-  /* "wikidata2vec/link_graph.pyx":141
+  /* "wikidata2vec/link_graph.pyx":144
  * 
  * 
  * cdef DumpDB _dump_db = None             # <<<<<<<<<<<<<<
@@ -25159,7 +25140,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF_SET(__pyx_v_12wikidata2vec_10link_graph__dump_db, ((struct __pyx_obj_12wikidata2vec_7dump_db_DumpDB *)Py_None));
   __Pyx_GIVEREF(Py_None);
 
-  /* "wikidata2vec/link_graph.pyx":142
+  /* "wikidata2vec/link_graph.pyx":145
  * 
  * cdef DumpDB _dump_db = None
  * cdef Dictionary _dictionary = None             # <<<<<<<<<<<<<<
@@ -25171,28 +25152,28 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF_SET(__pyx_v_12wikidata2vec_10link_graph__dictionary, ((struct __pyx_obj_12wikidata2vec_10dictionary_Dictionary *)Py_None));
   __Pyx_GIVEREF(Py_None);
 
-  /* "wikidata2vec/link_graph.pyx":145
+  /* "wikidata2vec/link_graph.pyx":148
  * 
  * 
  * def init_worker(dump_db, dictionary_obj):             # <<<<<<<<<<<<<<
  *     global _dump_db, _dictionary
  * 
  */
-  __pyx_t_3 = PyCFunction_NewEx(&__pyx_mdef_12wikidata2vec_10link_graph_1init_worker, NULL, __pyx_n_s_wikidata2vec_link_graph); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 145, __pyx_L1_error)
+  __pyx_t_3 = PyCFunction_NewEx(&__pyx_mdef_12wikidata2vec_10link_graph_1init_worker, NULL, __pyx_n_s_wikidata2vec_link_graph); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 148, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_init_worker, __pyx_t_3) < 0) __PYX_ERR(0, 145, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_init_worker, __pyx_t_3) < 0) __PYX_ERR(0, 148, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "wikidata2vec/link_graph.pyx":152
+  /* "wikidata2vec/link_graph.pyx":155
  * 
  * 
  * def _process_page(unicode title, int32_t offset):             # <<<<<<<<<<<<<<
  *     cdef int32_t page_index, dest_index
  *     cdef list dest_indices
  */
-  __pyx_t_3 = PyCFunction_NewEx(&__pyx_mdef_12wikidata2vec_10link_graph_3_process_page, NULL, __pyx_n_s_wikidata2vec_link_graph); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 152, __pyx_L1_error)
+  __pyx_t_3 = PyCFunction_NewEx(&__pyx_mdef_12wikidata2vec_10link_graph_3_process_page, NULL, __pyx_n_s_wikidata2vec_link_graph); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 155, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_process_page, __pyx_t_3) < 0) __PYX_ERR(0, 152, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_process_page, __pyx_t_3) < 0) __PYX_ERR(0, 155, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
   /* "(tree fragment)":1

@@ -4,7 +4,8 @@
 cimport numpy as np
 from libc.stdint cimport int32_t
 
-from .dictionary cimport Dictionary, Entity
+from .dictionary cimport Dictionary#, Entity
+from .dump_db cimport Entity
 
 cdef class LinkGraph:
     cdef readonly unicode uuid

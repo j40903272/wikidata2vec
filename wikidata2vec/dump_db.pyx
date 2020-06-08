@@ -18,13 +18,13 @@ from multiprocessing.pool import Pool
 
 import pydash
 import json
-
+import pdb
 
 logger = logging.getLogger(__name__)
 
 STYLE_RE = re.compile("'''*")
 
-
+# remove
 cdef class Paragraph:
     def __init__(self, unicode text, list wiki_links, bint abstract):
         self.text = text
@@ -40,7 +40,7 @@ cdef class Paragraph:
     def __reduce__(self):
         return (self.__class__, (self.text, self.wiki_links, self.abstract))
 
-
+# remove
 cdef class WikiLink:
     def __init__(self, unicode title, unicode text, int32_t start, int32_t end):
         self.title = title
@@ -104,19 +104,25 @@ cdef class DumpDB:
     def language(self):
         with self._env.begin(db=self._meta_db) as txn:
             return txn.get(b'language').decode('utf-8')
-
+        
+    def entity_size(self):
+        with self._env.begin(db=self._entity_db) as txn:
+            return txn.stat()['entries']
+    
+    # remove
     def page_size(self):
-        with self._env.begin(db=self._page_db) as txn:
+        with self._env.begin(db=self._entity_db) as txn:
             return txn.stat()['entries']
 
     def titles(self):
         cdef bytes key
 
-        with self._env.begin(db=self._page_db) as txn:
+        with self._env.begin(db=self._entity_db) as txn:
             cur = txn.cursor()
             for key in cur.iternext(values=False):
                 yield key.decode('utf-8')
-
+    
+    # remove
     def redirects(self):
         cdef bytes key, value
 
@@ -124,7 +130,8 @@ cdef class DumpDB:
             cur = txn.cursor()
             for (key, value) in iter(cur):
                 yield (key.decode('utf-8'), value.decode('utf-8'))
-
+    
+    # remove
     cpdef unicode resolve_redirect(self, unicode title):
         with self._env.begin(db=self._redirect_db) as txn:
             value = txn.get(title.encode('utf-8'))
@@ -132,13 +139,15 @@ cdef class DumpDB:
                 return value.decode('utf-8')
             else:
                 return title
-
+    
+    # remove
     cpdef is_redirect(self, unicode title):
         with self._env.begin(db=self._redirect_db) as txn:
             value = txn.get(title.encode('utf-8'))
 
         return bool(value)
 
+    # remove
     cpdef is_disambiguation(self, unicode title):
         with self._env.begin(db=self._page_db) as txn:
             value = txn.get(title.encode('utf-8'))
@@ -147,7 +156,8 @@ cdef class DumpDB:
             return False
 
         return pickle.loads(zlib.decompress(value))[1]
-
+    
+    # remove
     cpdef list get_paragraphs(self, unicode key):
         cdef bytes value
 
@@ -157,7 +167,8 @@ cdef class DumpDB:
                 raise KeyError(key)
 
         return self._deserialize_paragraphs(value)
-
+    
+    # remove
     cdef list _deserialize_paragraphs(self, bytes value):
         cdef list ret, wiki_links
 
@@ -167,36 +178,64 @@ cdef class DumpDB:
             ret.append(Paragraph(obj[0], wiki_links, obj[2]))
 
         return ret
+    
+    cpdef Entity get_entity(self, unicode key):
+        cdef bytes value
+
+        with self._env.begin(db=self._entity_db) as txn:
+            value = txn.get(key.encode('utf-8'))
+            if not value:
+                raise KeyError(key)
+
+        return self._deserialize_entity(value)
+    
+    cdef Entity _deserialize_entity(self, bytes value):
+        cdef list ret, wiki_links
+        
+        # [qid, label, descriptions, types, aliases]
+        ret = pickle.loads(zlib.decompress(value))
+
+        return Entity(*ret)
 
     @staticmethod
     def build(dump_reader, out_file, pool_size, chunk_size, preprocess_func=None,
-              init_map_size=500000000, buffer_size=3000):
+              init_map_size=500000000, buffer_size=3000, language='en'):
         with closing(lmdb.open(out_file, subdir=False, map_async=True, map_size=init_map_size,
-                               max_dbs=3)) as env:
+                               max_dbs=2)) as env:
             map_size = [init_map_size]
             meta_db = env.open_db(b'__meta__')
             with env.begin(db=meta_db, write=True) as txn:
                 txn.put(b'id', six.text_type(uuid1().hex).encode('utf-8'))
                 txn.put(b'dump_file', dump_reader.dump_file.encode('utf-8'))
-                # txn.put(b'version', six.text_type(
-                #     pkg_resources.get_distribution('wikipedia2vec').version).encode('utf-8')
-                # )
+                txn.put(b'language', language.encode('utf-8'))
+                txn.put(b'version', six.text_type(
+                    pkg_resources.get_distribution('wikidata2vec').version).encode('utf-8')
+                )
 
             entity_db = env.open_db(b'__entity__')
 
             def write_db(db, data):
-                try:
-                    with env.begin(db=db, write=True) as txn:
-                        txn.cursor().putmulti(data)
+                while len(data) > 0:
+                    try:
+                        with env.begin(db=db, write=True) as txn:
+                            txn.cursor().putmulti(data)
+                        break
+                        
+                    except lmdb.MapFullError:
+                        map_size[0] *= 2
+                        env.set_mapsize(map_size[0])
 
-                except lmdb.MapFullError:
-                    map_size[0] *= 2
-                    env.set_mapsize(map_size[0])
-                    write_db(db, data)
+                    except lmdb.BadValsizeError as error:
+                        st = str(error).index('#')
+                        ed = str(error).index(':')
+                        idx = int(str(error)[st+1:ed])
+                        logger.error(error)
+                        logger.error('remove element %d', idx)
+                        data.pop(idx)
 
             with closing(Pool(pool_size)) as pool:
                 entity_buf = []
-                f = partial(_parse, preprocess_func=preprocess_func)
+                f = partial(_parse, preprocess_func=preprocess_func, language=language)
                 for ret in pool.imap_unordered(f, dump_reader, chunksize=chunk_size):
                     if ret:
                         entity_buf.append(ret[1])
@@ -209,7 +248,7 @@ cdef class DumpDB:
                     write_db(entity_db, entity_buf)
 
 
-def _parse(line, preprocess_func):
+def _parse(line, preprocess_func, language):
     cdef dict entity
     cdef unicode qid, label, descriptions, types
     cdef list aliases, ret
@@ -225,13 +264,13 @@ def _parse(line, preprocess_func):
     
     qid = pydash.get(entity, 'id')
     types = pydash.get(entity, 'type')
-    label = pydash.get(entity, 'labels.en.value')
-    descriptions = pydash.get(entity, 'descriptions.en.value')
-    aliases = pydash.get(entity, 'aliases.en')
+    label = pydash.get(entity, 'labels.' + language + '.value')
+    descriptions = pydash.get(entity, 'descriptions.' + language + '.value')
+    aliases = pydash.get(entity, 'aliases.' + language)
     if aliases is not None:
         aliases = [i['value'] for i in aliases]
 
-    if (qid is None) or (label is None):
+    if (qid is None) or (label is None) or (not label):
         return None
         
     ret = [qid, label, descriptions, types, aliases]

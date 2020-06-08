@@ -5,7 +5,8 @@ import numpy as np
 cimport numpy as np
 from libc.stdint cimport int32_t
 
-from .dictionary cimport Dictionary, Entity
+from .dictionary cimport Dictionary#, Entity
+from .dump_db cimport Entity
 
 ctypedef np.float32_t float32_t
 

@@ -20,7 +20,10 @@ from scipy.sparse import coo_matrix
 from tqdm import tqdm
 from uuid import uuid1
 
-from .dictionary cimport Dictionary, Entity
+from .dictionary cimport Dictionary#, Entity
+### dada modification
+from .dump_db cimport Entity
+###
 from .dump_db cimport DumpDB, Paragraph, WikiLink
 
 logger = logging.getLogger(__name__)

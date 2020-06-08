@@ -12,6 +12,11 @@ cdef class DumpDB:
     cpdef unicode resolve_redirect(self, unicode)
     cpdef is_redirect(self, unicode)
     cpdef is_disambiguation(self, unicode)
+    
+    cpdef Entity get_entity(self, unicode)
+    cdef Entity _deserialize_entity(self, bytes)
+    
+    # remove
     cpdef list get_paragraphs(self, unicode)
     cdef list _deserialize_paragraphs(self, bytes)
 
@@ -34,5 +39,5 @@ cdef class Entity:
     cdef readonly list alias
     cdef readonly unicode label
     cdef readonly unicode types
-    cdef readonly unicode descriptions
+    cdef readonly unicode description
 

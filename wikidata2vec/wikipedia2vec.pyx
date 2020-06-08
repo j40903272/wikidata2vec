@@ -36,8 +36,8 @@ from multiprocessing.pool import Pool
 from scipy.linalg cimport cython_blas as blas
 from tqdm import tqdm
 
-from .dictionary cimport Dictionary, Item, Word, Entity
-from .dump_db cimport Paragraph, WikiLink, DumpDB
+from .dictionary cimport Dictionary, Item, Word#, Entity
+from .dump_db cimport Paragraph, WikiLink, DumpDB, Entity
 from .link_graph cimport LinkGraph
 from .mention_db cimport MentionDB, Mention
 from .utils.random cimport seed, randint_c
@@ -113,7 +113,8 @@ cdef class Wikipedia2Vec:
     cpdef np.ndarray get_entity_vector(self, unicode title, bint resolve_redirect=True):
         cdef Entity obj
 
-        obj = self._dictionary.get_entity(title, resolve_redirect=resolve_redirect)
+        #obj = self._dictionary.get_entity(title, resolve_redirect=resolve_redirect)
+        obj = self._dictionary.get_entity(title)
         if obj is None:
             raise KeyError()
         return self.syn0[obj.index]
