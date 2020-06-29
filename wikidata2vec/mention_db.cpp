@@ -1130,12 +1130,12 @@ typedef npy_cdouble __pyx_t_5numpy_complex_t;
 struct __pyx_opt_args_12wikidata2vec_10dictionary_10Dictionary_get_entity;
 struct __pyx_opt_args_12wikidata2vec_10dictionary_10Dictionary_get_word;
 
-/* "dictionary.pxd":38
- * #     cdef readonly _alias_counter
+/* "dictionary.pxd":34
+ *     cdef readonly _alias2label
  * 
  *     cpdef get_entity(self, unicode word=?, unicode qid=?, int32_t index=?, default=?)             # <<<<<<<<<<<<<<
  *     cpdef int32_t get_entity_index(self, unicode)
- *     cpdef get_entity_by_index(self, int32_t)
+ *     cpdef unicode get_entity_qid(self, unicode)
  */
 struct __pyx_opt_args_12wikidata2vec_10dictionary_10Dictionary_get_entity {
   int __pyx_n;
@@ -1145,7 +1145,7 @@ struct __pyx_opt_args_12wikidata2vec_10dictionary_10Dictionary_get_entity {
   PyObject *__pyx_default;
 };
 
-/* "dictionary.pxd":45
+/* "dictionary.pxd":43
  * 
  *     # remove
  *     cpdef get_word(self, unicode, default=?)             # <<<<<<<<<<<<<<
@@ -1469,6 +1469,8 @@ struct __pyx_obj_12wikidata2vec_10mention_db___pyx_scope_struct_4_genexpr {
 struct __pyx_vtabstruct_12wikidata2vec_10dictionary_Dictionary {
   PyObject *(*get_entity)(struct __pyx_obj_12wikidata2vec_10dictionary_Dictionary *, int __pyx_skip_dispatch, struct __pyx_opt_args_12wikidata2vec_10dictionary_10Dictionary_get_entity *__pyx_optional_args);
   int32_t (*get_entity_index)(struct __pyx_obj_12wikidata2vec_10dictionary_Dictionary *, PyObject *, int __pyx_skip_dispatch);
+  PyObject *(*get_entity_qid)(struct __pyx_obj_12wikidata2vec_10dictionary_Dictionary *, PyObject *, int __pyx_skip_dispatch);
+  PyObject *(*get_entity_alias)(struct __pyx_obj_12wikidata2vec_10dictionary_Dictionary *, PyObject *, int __pyx_skip_dispatch);
   PyObject *(*get_entity_by_index)(struct __pyx_obj_12wikidata2vec_10dictionary_Dictionary *, int32_t, int __pyx_skip_dispatch);
   PyObject *(*get_entity_by_word)(struct __pyx_obj_12wikidata2vec_10dictionary_Dictionary *, PyObject *, int __pyx_skip_dispatch);
   PyObject *(*get_entity_by_qid)(struct __pyx_obj_12wikidata2vec_10dictionary_Dictionary *, PyObject *, int __pyx_skip_dispatch);
